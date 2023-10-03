@@ -1,0 +1,6 @@
+# Source all the runtimes' profile scripts
+for profile in "$(dirname "$(dirname "$BASH_SOURCE")")"/.runtimes/*/.profile; do
+    if [[ -e $profile ]]; then
+        . "$profile"
+    fi
+done

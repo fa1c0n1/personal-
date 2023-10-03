@@ -1,0 +1,45 @@
+dependencies {
+    implementation project(":stargate-common-utils")
+    compileOnly "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation "org.apache.ignite:ignite-core:${igniteVersion}"
+    implementation "org.apache.ignite:ignite-slf4j:${igniteVersion}"
+    implementation "org.apache.ignite:ignite-kubernetes:${igniteVersion}"
+    implementation "org.apache.ignite:ignite-indexing:${igniteVersion}"
+    implementation("org.redisson:redisson:${redissonVersion}")
+    implementation "com.google.guava:guava:${guavaVersion}"
+    compileOnly "org.springframework:spring-context:${springVersion}"
+    compileOnly "io.projectreactor.netty:reactor-netty:${reactorNettyVersion}"
+    compileOnly "org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}"
+    implementation "org.springframework:spring-beans:${springVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-data-jdbc:${springBootVersion}"
+    implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
+    compileOnly("com.apple.aml.nativeml:nativeml-spec:${nativemlSpecVersion}") {
+        exclude group: "com.apple.aml.stargate"
+    }
+    implementation "io.prometheus:simpleclient_common:${prometheusVersion}"
+    compileOnly("com.apple.athena:athena-attributes:${athenaVersion}") {
+        exclude group: 'ch.qos.logback'
+        exclude group: "org.mortbay.jetty"
+        exclude group: "org.apache.curator"
+        exclude group: "com.netflix.astyanax"
+        exclude group: "com.github.stephenc"
+        exclude group: "com.fasterxml.jackson.core"
+        exclude group: "com.fasterxml.jackson.module"
+        exclude group: "ch.qos.logback"
+        exclude group: "org.slf4j"
+        exclude group: "javax.servlet"
+        exclude group: "org.apache.thrift"
+        exclude group: "org.eclipse.jetty"
+        exclude group: "org.apache.spark"
+        exclude group: "com.datastax.cassandra"
+        exclude group: "com.datastax.oss"
+        exclude group: "org.apache.cassandra"
+        exclude group: "org.apache.commons"
+        exclude group: "org.apache.cassandra.deps", module: "avro"
+    }
+    compileOnly "org.apache.curator:curator-client:${curatorVersion}"
+    compileOnly "io.micrometer:micrometer-registry-prometheus:${micrometerVersion}"
+    implementation "commons-io:commons-io:${commonsIoVersion}"
+    implementation "org.apache.ignite:ignite-opencensus:${igniteVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+}

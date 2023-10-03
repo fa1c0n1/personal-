@@ -1,0 +1,142 @@
+namespace: aml-shuri-dev
+cluster: us-west-2a
+replicaCount: 2
+kube:
+  enabled: true
+  priorityClassName: p3
+aws:
+  enabled: false
+image:
+  registry: docker.apple.com
+  repository: shuri
+  name: stargate
+  tag: latest
+  pullPolicy: Always
+
+grpc:
+  enabled: true
+  service:
+    port: 8082
+  annotations:
+    kubernetes.io/ingress.class: "plb.v1"
+    pie.traffic.plb/aliases: "stargate-grpc-dev.apple.com,stargate-grpc-dev.g.apple.com"
+    pie.traffic.plb/certificate_secret: "stargate-grpc-ingress-cert"
+    pie.traffic.plb/key_secret: "stargate-grpc-ingress-key"
+    pie.traffic.plb/grpc_enable: "true"
+mongodb:
+  enabled: true
+  namespace: isdataservices
+  cluster: us-west-2a
+thrift:
+  enabled: false
+  service:
+    port: 8081
+
+imdg:
+  enabled: false
+
+app:
+  applicationProperties:
+    APP_MODE: DEV
+    PLATFORM_APPLICATION_ID: shuri
+    PLATFORM_PROCESS_NAME: us-west-2a
+    PLATFORM_WORK_UNIT_ID: pod1
+    PLATFORM_JOB_ID: hostname
+    PLATFORM_SHORT_INSTANCE_ID: stargate-dev
+    HUBBLE_TCP_URL: "tcp://hubble-tcp-publish-corp-uat.apple.com:9898"
+    READINESS_ENABLE_CHECK: true
+    LIVENESS_ENABLE_CHECK: true
+    GSLB_ENABLE_CHECK: true
+    APP_IDMS_VALIDATE_URL: "http://localhost:8090"
+    APP_DB_INSTANCES: "mr51q01nt-maasdlmdb002.dbs.ise.apple.com:10905,mr51q01nt-maasdlmdb003.dbs.ise.apple.com:10905,mr51q01nt-maasdlmdb004.dbs.ise.apple.com:10905"
+    APP_DB_NAME: "stargate-dev"
+    APP_DB_USER: "C=US,ST=California,O=Apple Inc.,OU=management:idms.group.1462913,CN=stargate-dev.shuridevrw.apple.com"
+    APP_DB_KEYSTORE_ALIAS: "stargate-dev.shuridevrw.apple.com"
+    APP_DB_KEYSTORE_PATH: "/app/keystore/stargate.jks"
+    APP_GITHUB_CLIENT_ID: athenaml-sa
+    APP_ACS_SPARK_PROJECT_ID: 683gxhxpqgju
+    APP_ACS_SPARK_SOURCE_ID: zg9t8djgnluy
+    APP_ACS_SPARK_NAMESPACE_ID: 8ax3c2oi2sbx
+    APP_GRPC_SERVICE: "stargate-grpc-aml-shuri-dev.us-west-2a.app.apple.com:443"
+    APP_K8S_SPLUNK_FORWARDER_VERSION: "8.2.5"
+  environment: DEV
+  secretName: "aml-stargate-secret-dev"
+
+initContainers:
+  vault:
+    enabled: false
+    secretName: "aml-stargate-vault-secret-dev"
+    kubernetesServicePort: 6442
+  certd:
+    enabled: false
+  whisper:
+    enabled: true
+    env: dev
+idms:
+  environment: "DEV"
+
+splunk:
+  enabled: true
+  index: "stargate_dev"
+  clusterName: "iag_test"
+
+ingress:
+  enabled: true
+  kubeAnnotations:
+    kubernetes.io/ingress.class: "plb.v1"
+    pie.traffic.plb/certificate_secret: "aml-stargate-ingress-cert"
+    pie.traffic.plb/key_secret: "aml-stargate-ingress-key"
+    pie.traffic.plb/aliases: "stargate-dev-platform.apple.com"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 3
+
+shuria3:
+  enabled: false
+  app:
+    enabled: false
+    javaVMArgs: "-DI3_ENV=PROD-HTTPS"
+    secretName: "aml-shuri-a3-secret-dev"
+  readinessProbe:
+    enabled: true
+    periodSeconds: 60
+    successThreshold: 1
+    timeoutSeconds: 1
+  livenessProbe:
+    enabled: true
+    periodSeconds: 60
+    successThreshold: 1
+    timeoutSeconds: 1
+
+readinessProbe:
+  enabled: true
+  #  initialDelaySeconds: 60
+  failureThreshold: 3
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+  httpGet:
+    path: /readiness
+    port: 8080
+livenessProbe:
+  enabled: true
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+  failureThreshold: 3
+  httpGet:
+    path: /health
+
+revisionHistoryLimit: 2
+deploymentStrategy: { }
+#  type: RollingUpdate
+#  rollingUpdate:
+#    maxSurge: 1
+#    maxUnavailable: 0
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+  maxUnavailable: 1

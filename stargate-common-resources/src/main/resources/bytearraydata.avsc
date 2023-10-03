@@ -1,0 +1,13 @@
+{
+  "type": "record",
+  "name": "ByteArrayData",
+  "namespace": "com.apple.aml.stargate.#{ENV}.internal",
+  "fields": [
+    {
+      "type": "array",
+      "items" : "byte",
+      "default": [],
+      "doc": "ByteArray data"
+    }
+  ]
+}

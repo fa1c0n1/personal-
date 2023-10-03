@@ -1,0 +1,63 @@
+dependencies {
+
+    implementation project(":stargate-services-spec")
+    implementation libraries.logback
+    implementation "com.squareup.okhttp3:okhttp:${okhttpVersion}"
+    implementation "com.squareup.okhttp3:logging-interceptor:${okhttpVersion}"
+    compileOnly libraries.coreJackson
+    implementation "org.javassist:javassist:${javassistVersion}"
+    implementation "com.jsoniter:jsoniter:${jsoniterVersion}"
+    compileOnly("com.github.victools:jsonschema-generator:${jsonschemaVersion}") {
+        exclude group: "com.fasterxml.jackson.core"
+    }
+    implementation "org.apache.commons:commons-csv:${commonsCsvVersion}"
+    implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
+    implementation "commons-codec:commons-codec:${commonsCodecVersion}"
+    implementation "org.springframework:spring-expression:${springVersion}"
+    implementation("com.google.guava:guava") {
+        version {
+            strictly "${guavaVersion}"
+        }
+    }
+    implementation "org.apache.avro:avro:${apacheAvroVersion}"
+    implementation "com.linkedin.avroutil1:helper-all:${avroutilVersion}"
+    implementation "com.linkedin.avroutil1:avro-fastserde:${avroutilVersion}"
+    implementation "com.apple.ist.idms:a3tokenclient:${a3tokenclientVersion}"
+    implementation "com.apple.ist.idms:DSClient:${dsclientVersion}"
+    implementation "com.apple.ist.idms:i3rpc:${i3rpcVersion}"
+    implementation("com.apple.amp.external.schema-store:amp-schema-store-client:${schemaStoreVersion}") {
+        exclude group: "com.fasterxml.jackson.core", module: "jackson-databind"
+    }
+    compileOnly "log4j:log4j:${log4jOldVersion}"
+    compileOnly "org.apache.logging.log4j:log4j-core:${log4jVersion}"
+    compileOnly "com.apple.ihubble.client:hubbleagent:${hubbleAgentVersion}"
+    compileOnly "org.freemarker:freemarker:${freemarkerVersion}"
+    compileOnly "com.github.chrisvest:stormpot:${stormpotVersion}"
+    implementation "io.prometheus:simpleclient_common:${prometheusVersion}"
+    implementation "io.prometheus:simpleclient_hotspot:${prometheusVersion}"
+    implementation "io.prometheus:simpleclient_httpserver:${prometheusVersion}"
+    implementation "io.prometheus.jmx:collector:${prometheusJmxVersion}"
+    implementation "io.opencensus:opencensus-api:${opencensusVersion}"
+    implementation "io.opencensus:opencensus-impl:${opencensusVersion}"
+    implementation "io.opencensus:opencensus-exporter-trace-zipkin:${opencensusVersion}"
+    implementation "io.opencensus:opencensus-exporter-stats-prometheus:${opencensusVersion}"
+    implementation "org.bouncycastle:bcprov-jdk15on:${bcprovVersion}"
+    compileOnly "com.amazonaws:aws-java-sdk-s3:${awsVersion}"
+    compileOnly "software.amazon.awssdk:s3:${awsV2Version}"
+    implementation "org.cache2k:cache2k-core:${cache2kVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+    implementation "org.lz4:lz4-java:${lz4Version}"
+    compileOnly "org.apache.solr:solr-solrj:${solrjVersion}"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${jacksonVersion}"
+    implementation "com.apple.jvm.commons:commons-metrics:${jvmCommonsVersion}"
+    implementation "com.apple.jvm.commons:commons-prometheus-metrics:${jvmCommonsVersion}"
+    implementation "io.github.resilience4j:resilience4j-all:${resilience4jVersion}"
+    implementation "io.github.resilience4j:resilience4j-retry:${resilience4jVersion}"
+    implementation "org.apache.commons:commons-compress:${commonsCompressVersion}"
+}
+def gitVersionShort = System.getenv("GIT_COMMIT_SHORT")
+if (gitVersionShort != null && !gitVersionShort.isBlank()) {
+    file("src/main/resources/reference.conf").append("\n\nstargate.versionInfo.version = \"" + version.replaceAll('-SNAPSHOT', '') + "\"")
+    file("src/main/resources/reference.conf").append("\nstargate.versionInfo.tag = \"" + gitVersionShort + "\"")
+    file("src/main/resources/reference.conf").append("\nstargate.versionInfo.buildTime = \"" + new Date().format("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") + "\"")
+}

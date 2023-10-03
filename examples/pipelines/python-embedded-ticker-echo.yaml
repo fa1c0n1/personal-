@@ -1,0 +1,38 @@
+apiVersion: "stargate.aml.apple.com/v1"
+kind: StargateDeployment
+metadata:
+  name: py-embedded
+spec:
+  deploymentSize: small
+  logForwarder: default
+  pythonImage: docker.apple.com/aml/stargate-python-embedded-example:latest
+  #  stargateVersion: "1.X.X" # since we are pinning the stargate-python-runner in Docker/requirements.txt, it is preferred to pin the corresponding stargateVersion
+
+  definition:
+
+    reader:
+      name: GenerateTick
+      type: Ticker
+      config:
+        schemaId: com.apple.aml.stargate.#{ENV}.internal.KeyValue
+        frequency: 10s
+        expression: |
+          {
+            "key" : "auto-${statics["java.util.UUID"].randomUUID()}",
+            "value" : "${record.epoc}"
+          }
+
+    transformer0:
+      name: InvokeEchoLambda
+      type: Python
+      logLevelIn: INFO
+      config:
+        functionOptions:
+          file: /app/sampleapp/foo/bar/echo.py
+          class: Echo
+
+    writer:
+      name: DoNothing
+      type: NoOp
+
+    dag: "GenerateTick->InvokeEchoLambda->DoNothing"

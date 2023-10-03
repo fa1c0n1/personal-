@@ -1,0 +1,40 @@
+apiVersion: "stargate.aml.apple.com/v1"
+kind: StargateDeployment
+metadata:
+  name: py-non-embedded
+spec:
+  deploymentSize: small
+  logForwarder: default
+  pythonImage: docker.apple.com/aml/stargate-python-non-embedded-example:latest
+
+  definition:
+
+    reader:
+      name: GenerateTick
+      type: Ticker
+      config:
+        schemaId: com.apple.aml.stargate.#{ENV}.internal.KeyValue
+        frequency: 10s
+        expression: |
+          {
+            "key" : "auto-${statics["java.util.UUID"].randomUUID()}",
+            "value" : "${record.epoc}"
+          }
+
+    transformer:
+      name: InvokeEchoLambda
+      type: Python
+      logLevelIn: INFO
+      config:
+        context:
+          payloadSchemaId: com.apple.aml.stargate.#{ENV}.internal.KeyValue
+          payloadPublisherId: sample-publisher
+        functionOptions:
+          file: /app/sampleapp/foo/bar/dhari.py
+          class: DhariSample
+
+    writer:
+      name: DoNothing
+      type: NoOp
+
+    dag: "GenerateTick->InvokeEchoLambda->DoNothing"

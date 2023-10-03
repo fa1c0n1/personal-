@@ -1,0 +1,157 @@
+dependencies {
+    compileOnly "org.apache.flink:flink-core:${flinkVersion}"
+    implementation libraries.coreJackson
+    implementation "org.cache2k:cache2k-core:${cache2kVersion}"
+    implementation ("com.apple.aml.stargate:stargate-rpc-spec:${stargateRpcSpec}") {
+        exclude group: "io.grpc", module: "grpc-netty-shaded"
+    }
+    implementation "com.fasterxml.jackson.module:jackson-module-jsonSchema:${jacksonVersion}"
+    implementation "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${jacksonVersion}"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:${jacksonVersion}"
+    implementation "com.apple.ihubble.client:hubbleagent:${hubbleAgentVersion}"
+    compileOnly "org.apache.commons:commons-pool2:${commonsPoolVersion}"
+    implementation project(":stargate-services-spec")
+    implementation project(":stargate-common-utils")
+    implementation project(":stargate-common-resources")
+    implementation "org.springframework:spring-expression:${springVersion}"
+    implementation "org.freemarker:freemarker:${freemarkerVersion}"
+    implementation "com.google.guava:guava:${guavaVersion}"
+    compileOnly "org.apache.beam:beam-sdks-java-core:${beamVersion}"
+    implementation "org.apache.parquet:parquet-avro:${parquetAvroVersion}"
+    implementation "org.apache.orc:orc-core:${orcVersion}"
+    //implementation("com.github.java-json-tools:json-schema-core:1.2.13")
+    implementation("org.apache.hadoop:hadoop-client:${hadoopVersion}") {
+        exclude group: "com.sun.jersey"
+        exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
+        exclude group: "io.netty"
+        exclude group: "com.squareup.okhttp3"
+    }
+    implementation("org.apache.hadoop:hadoop-common:${hadoopVersion}") {
+        exclude group: "com.sun.jersey"
+        exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
+        exclude group: "io.netty"
+        exclude group: "com.squareup.okhttp3"
+    }
+    implementation("org.apache.hadoop:hadoop-hdfs:${hadoopVersion}") {
+        exclude group: "com.sun.jersey"
+        exclude group: "io.netty"
+        exclude group: "com.squareup.okhttp3"
+    }
+    implementation("org.apache.hadoop:hadoop-hdfs-client:${hadoopVersion}") {
+        exclude group: "com.sun.jersey"
+        exclude group: "io.netty"
+        exclude group: "com.squareup.okhttp3"
+    }
+    implementation("org.apache.hadoop:hadoop-yarn-server-resourcemanager:${hadoopVersion}") {
+        exclude group: "com.sun.jersey"
+        exclude group: "io.netty"
+        exclude group: "com.squareup.okhttp3"
+        exclude group: "org.eclipse.jetty.orbit", module: "javax.servlet"
+    }
+    implementation("com.squareup.okhttp3:okhttp") {
+        version {
+            strictly "${okhttpVersion}"
+        }
+    }
+    implementation "org.apache.hive:hive-storage-api:${hiveStorageVersion}"
+    implementation("org.apache.hive:hive-common:${hiveVersion}") {
+        exclude group: "org.apache.thrift", module: "libthrift"
+        exclude group: "javax.servlet", module: "servlet-api"
+        exclude group: "org.eclipse.jetty.orbit", module: "javax.servlet"
+    }
+    implementation("org.apache.hive:hive-metastore:${hiveVersion}") {
+        exclude group: "org.apache.thrift", module: "libthrift"
+        exclude group: "org.mortbay.jetty"
+        exclude group: "javax.servlet", module: "servlet-api"
+        exclude group: "org.eclipse.jetty.orbit", module: "javax.servlet"
+    }
+    implementation("org.apache.hive:hive-exec:${hiveVersion}") {
+        exclude group: "org.apache.thrift", module: "libthrift"
+        exclude group: "javax.servlet", module: "servlet-api"
+        exclude group: "org.eclipse.jetty.orbit", module: "javax.servlet"
+    }
+    implementation("org.apache.hive.hcatalog:hive-hcatalog-core:${hiveVersion}") {
+        exclude group: "org.apache.thrift", module: "libthrift"
+        exclude group: "org.eclipse.jetty.aggregate", module: "jetty-all"
+        exclude group: "org.mortbay.jetty"
+        exclude group: "javax.servlet", module: "servlet-api"
+        exclude group: "org.eclipse.jetty.orbit", module: "javax.servlet"
+        exclude group: "org.apache.hadoop", module: "hadoop-client"
+    }
+    implementation "org.eclipse.jetty.aggregate:jetty-all:${jettyVersion}"
+    implementation "org.eclipse.jetty:jetty-runner:${jettyVersion}"
+    implementation "org.eclipse.jetty:jetty-jaas:${jettyVersion}"
+    implementation "org.apache.thrift:libthrift:${thriftVersion}"
+    implementation "org.apache.logging.log4j:log4j-web:${log4jVersion}"
+    implementation "io.netty:netty-all:${nettyVersion}"
+    implementation("org.apache.zookeeper:zookeeper:${zookeeperVersion}") {
+        exclude group: "org.slf4j", module: "slf4j-log4j12"
+    }
+    implementation "javax.servlet:javax.servlet-api:${servletapiVersion}"
+    implementation("org.apache.hadoop:hadoop-mapreduce-client-core:${hadoopVersion}") {
+        exclude group: "com.sun.jersey"
+        exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
+        exclude group: "io.netty"
+        exclude group: "com.squareup.okhttp3"
+    }
+    implementation("org.apache.hadoop:hadoop-aws:${hadoopVersion}") {
+        exclude group: "com.sun.jersey"
+        exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
+        exclude group: "io.netty"
+        exclude group: "com.squareup.okhttp3"
+        exclude group: "com.amazonaws", module: "aws-java-sdk-bundle"
+    }
+    implementation("org.apache.hadoop:hadoop-client-runtime:${hadoopVersion}") {
+        exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
+    }
+    implementation "com.amazonaws:aws-java-sdk-s3:${awsVersion}"
+    implementation "com.amazonaws:aws-java-sdk-dynamodb:${awsVersion}"
+    implementation "com.amazonaws:aws-java-sdk-sns:${awsVersion}"
+    implementation "com.amazonaws:aws-java-sdk-sts:${awsVersion}"
+//    implementation "software.amazon.awssdk:core:${awsV2Version}"
+//    implementation "software.amazon.awssdk:aws-sdk-java:${awsV2Version}"
+    implementation "software.amazon.awssdk:s3:${awsV2Version}"
+    implementation "software.amazon.awssdk:dynamodb:${awsV2Version}"
+    implementation "io.dropwizard.metrics:metrics-jmx:${dropwizardVersion}"
+    implementation "io.dropwizard.metrics:metrics-jvm:${dropwizardVersion}"
+    implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
+    implementation "org.apache.commons:commons-csv:${commonsCsvVersion}"
+    implementation "com.github.luben:zstd-jni:${zstdVersion}"
+    implementation "commons-cli:commons-cli:${commonsCliVersion}"
+    implementation "commons-io:commons-io:${commonsIoVersion}"
+    implementation "com.github.chrisvest:stormpot:${stormpotVersion}"
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
+    implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
+    implementation "com.google.protobuf:protobuf-java-util:${protobufVersion}"
+    implementation "io.prometheus:simpleclient_common:${prometheusVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+    implementation "org.eclipse.jetty:jetty-alpn-java-client:${jettyVersion}"
+    implementation "org.apache.solr:solr-solrj:${solrjVersion}"
+    implementation("com.github.victools:jsonschema-generator:${jsonschemaVersion}") {
+        exclude group: "com.fasterxml.jackson.core"
+    }
+    implementation "com.apple.jvm.commons:commons-metrics:${jvmCommonsVersion}"
+    implementation "com.apple.jvm.commons:commons-prometheus-metrics:${jvmCommonsVersion}"
+    implementation "com.google.inject:guice:${guiceVersion}"
+    implementation "com.apple.pie.queue:avro-serializer:${pieKafkaAvroVersion}"
+    implementation "de.ruedigermoeller:fst:${fstCoderVersion}"
+    implementation "com.esotericsoftware:kryo:${kryoVersion}"
+    implementation "net.snowflake:snowflake-jdbc:${snowflakeJdbcVersion}"
+    implementation "com.zaxxer:HikariCP:${hikariVersion}"
+    implementation "org.quartz-scheduler:quartz:${quartzVersion}"
+    implementation "io.github.resilience4j:resilience4j-retry:${resilience4jVersion}"
+    implementation "org.jdbi:jdbi3-core:${jdbi3Version}"
+    implementation "org.jdbi:jdbi3-guava:${jdbi3Version}"
+    implementation "org.jdbi:jdbi3-jodatime2:${jdbi3Version}"
+    implementation "org.jdbi:jdbi3-jackson2:${jdbi3Version}"
+    implementation "org.jdbi:jdbi3-guice:${jdbi3Version}"
+    implementation "org.jdbi:jdbi3-postgres:${jdbi3Version}"
+    implementation "org.jdbi:jdbi3-freemarker:${jdbi3Version}"
+    implementation "org.jdbi:jdbi3-caffeine-cache:${jdbi3Version}"
+    implementation "org.postgresql:postgresql:${postgresqlVersion}"
+    implementation "com.singlestore:singlestore-jdbc-client:${singlestoreJdbcVersion}"
+    implementation "io.trino:trino-jdbc:${trinojdbcVersion}"
+    implementation project(":stargate-repackaged-libs")
+}

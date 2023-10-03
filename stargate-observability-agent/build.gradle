@@ -1,0 +1,15 @@
+dependencies {
+    implementation project(":stargate-common-utils")
+    implementation "com.squareup.okhttp3:okhttp:${okhttpVersion}"
+    implementation "com.squareup.okhttp3:logging-interceptor:${okhttpVersion}"
+    implementation project(":stargate-common-resources")
+    implementation libraries.coreJackson
+    implementation "commons-io:commons-io:${commonsIoVersion}"
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    implementation libraries.logback
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+    implementation "org.springframework:spring-context:${springVersion}"
+    implementation "org.springframework:spring-beans:${springVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}"
+    implementation "com.github.ben-manes.caffeine:caffeine:${caffeineCacheVersion}"
+}

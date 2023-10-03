@@ -1,0 +1,1 @@
+db.pipeline_runtime_info.createIndex({_pipelineId:1}, { unique: true })

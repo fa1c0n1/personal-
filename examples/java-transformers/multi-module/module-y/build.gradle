@@ -1,0 +1,5 @@
+dependencies {
+    compileOnly "com.apple.aml.stargate:stargate-services-spec:${stargateSpecVersion}"
+    compileOnly "org.slf4j:slf4j-api:${slf4jVersion}"
+    compileOnly "com.google.inject:guice:${guiceVersion}"
+}

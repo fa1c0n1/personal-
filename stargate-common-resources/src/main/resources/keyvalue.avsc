@@ -1,0 +1,22 @@
+{
+  "type": "record",
+  "name": "KeyValue",
+  "namespace": "com.apple.aml.stargate.#{ENV}.internal",
+  "fields": [
+    {
+      "name": "key",
+      "type": "string"
+    },
+    {
+      "name": "value",
+      "type": [
+        "null",
+        {
+          "type": "map",
+          "values": "string"
+        },
+        "string"
+      ]
+    }
+  ]
+}

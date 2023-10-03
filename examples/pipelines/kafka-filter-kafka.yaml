@@ -1,0 +1,38 @@
+apiVersion: "stargate.aml.apple.com/v1"
+kind: StargateDeployment
+metadata:
+  name: kafka-filter
+spec:
+  deploymentSize: small
+  logForwarder: default
+
+  definition:
+
+    reader:
+      name: DhariKafka
+      type: ACIKafka
+      connectId: get-valid-kafka-connectId-from-ops
+      config:
+        topic: test-topic0
+
+    writer0:
+      name: FilterBySchemaA
+      type: ACIKafka
+      filter:
+        schemaId: com.apple.aml.shuri.dev.SchemaA
+      connectId: get-valid-kafka-connectId-from-ops
+      config:
+        topic: test-topic1
+
+    writer1:
+      name: FilterBySchemaB
+      type: ACIKafka
+      filter:
+        schemaId: com.apple.aml.shuri.dev.SchemaB
+      connectId: get-valid-kafka-connectId-from-ops
+      config:
+        topic: test-topic2
+
+    dag:
+      - DhariKafka->FilterBySchemaA
+      - DhariKafka->FilterBySchemaB

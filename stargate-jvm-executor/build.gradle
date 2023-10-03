@@ -1,0 +1,35 @@
+apply plugin: 'application'
+apply plugin: 'java'
+
+dependencies {
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
+    implementation project(":stargate-common-utils")
+    implementation project(":stargate-common-resources")
+    implementation libraries.coreJackson
+    implementation "commons-io:commons-io:${commonsIoVersion}"
+    implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
+    implementation "org.aspectj:aspectjweaver:${aspectjVersion}"
+    implementation "io.prometheus:simpleclient_httpserver:${prometheusVersion}"
+    implementation "org.springframework:spring-context:${springVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-aop:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}"
+    implementation "io.projectreactor.netty:reactor-netty:${reactorNettyVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
+    implementation "org.springframework:spring-beans:${springVersion}"
+    implementation "io.prometheus:simpleclient_common:${prometheusVersion}"
+    implementation "io.prometheus:simpleclient_hotspot:${prometheusVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+}
+
+application {
+    mainClassName = 'com.apple.aml.stargate.executor.jvm.ExternalJvmApp'
+}
+
+tasks.register('copyConfigs') {
+    copy {
+        from "${projectDir}/../config/logger/logback.xml"
+        into "${projectDir}/src/main/resources"
+    }
+}
+
+tasks.jar.dependsOn tasks.copyConfigs

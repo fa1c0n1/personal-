@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: executor-pod
+spec:
+  initContainers:
+    - name: app-config-init-container
+      image: docker.apple.com/appconfig/app-config-init-container:2.2.6
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: spring.cloud.config.name
+          value: M01469
+        - name: spring.cloud.config.label
+          value: EXECUTOR_APP_CONFIG_LABEL_NAME
+        - name: spring.cloud.config.profile
+          value: EXECUTOR_APP_CONFIG_PROFILE_NAME
+        - name: appconfig.init-container.property.download.enabled
+          value: "true"
+        - name: appconfig.init-container.property.download.path
+          value: /app-config
+        - name: appconfig.init-container.property.download.fileName
+          value: app.secrets
+        - name: appconfig.init-container.resource.enabled
+          value: "true"
+        - name: appconfig.init-container.resource.defaultPath
+          value: /app-config
+        - name: appconfig.init-container.resource.fileNames
+          value: "core-site.xml,hive-site.xml,keytab.txt,krb5.conf"
+      envFrom:
+        - secretRef:
+            name: EXECUTOR_APP_CONFIG_SECRET_REF
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+        - mountPath: /app-config
+          name: app-config-data
+  containers:
+    - name: splunkforwarder
+      image: docker.apple.com/splunk-ist/splunk-universalforwarder:latest
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: SPLUNK_LOG_MONITOR
+          value: /opt/stargate/logs/stargate-spark-executor.log|EXECUTOR_SPLUNK_INDEX|stargate-spark-executor
+        - name: SPLUNK_CLUSTER
+          value: iag_prod
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 200m
+          memory: 256Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+        - mountPath: /opt/splunk/var
+          name: splunkforwarder-temp
+        - mountPath: /etc/splunk/podinfo
+          name: podinfo
+          readOnly: true
+        - mountPath: /opt/stargate/logs/
+          name: stargate-spark-executor-logs
+    - name: executor
+      image: docker.apple.com/aml/stargate-spark-facade:latest
+      imagePullPolicy: IfNotPresent
+      lifecycle:
+        postStart:
+          exec:
+            command: [
+              "/bin/sh",
+              "-c",
+              'set -a; [ -f /app-config/app.secrets ] && . /app-config/app.secrets; set +a ; mkdir -p /etc/cron.d; cat /app-config/krb5.conf>/etc/krb5.conf; echo "0 */6 * * *  kinit -kt /app-config/ $APP_HMS_PRINCIPAL" > /etc/cron.d/hmskinit; crontab /etc/cron.d/hmskinit; kinit -kt /app-config/keytab.txt $APP_HMS_PRINCIPAL; cron',
+            ]
+      volumeMounts:
+        - mountPath: /opt/stargate/logs/
+          name: stargate-spark-executor-logs
+        - mountPath: /app-config
+          name: app-config-data
+  volumes:
+    - name: stargate-spark-executor-logs
+    - name: podinfo
+    - name: splunkforwarder-temp
+    - emptyDir:
+        medium: Memory
+      name: app-config-data
+  serviceAccountName: EXECUTOR_SERVICE_ACCOUNT_NAME

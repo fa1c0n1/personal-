@@ -1,0 +1,54 @@
+apply plugin: 'rio-application'
+apply plugin: 'java'
+apply plugin: 'project-report'
+apply plugin: 'application'
+
+rio {
+    application {
+        mainClass = 'com.apple.aml.stargate.cli.boot.StargateConsole'
+    }
+}
+application {
+    mainClass = 'com.apple.aml.stargate.cli.boot.StargateConsole'
+}
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xlint:unchecked', '-Xlint:deprecation']
+}
+
+idea {
+    module {
+        downloadSources = true
+    }
+}
+
+tasks.register('copyConfigs') {
+    copy {
+        from "${projectDir}/../config/logger/logback.xml"
+        into "${projectDir}/src/main/resources"
+    }
+}
+
+tasks.jar.dependsOn tasks.copyConfigs
+
+dependencies {
+    implementation project(":stargate-common-utils")
+    implementation libraries.coreJackson
+    implementation "com.google.guava:guava:${guavaVersion}"
+    implementation "commons-cli:commons-cli:${commonsCliVersion}"
+    implementation "commons-io:commons-io:${commonsIoVersion}"
+    implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    implementation libraries.logback
+    implementation "com.lmax:disruptor:${disruptorVersion}"
+    implementation "com.conversantmedia:disruptor:${cDisruptorVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+}
+def gitVersionShort = System.getenv("GIT_COMMIT_SHORT")
+if (gitVersionShort != null && !artifactory_password.isBlank()) {
+    file("src/main/resources/version.info").append(version.replaceAll('-SNAPSHOT', ''))
+}

@@ -1,0 +1,81 @@
+apply plugin: 'rio-application'
+apply plugin: 'java'
+apply plugin: 'project-report'
+apply plugin: 'application'
+
+rio {
+    application {
+        mainClass = 'com.apple.aml.stargate.executor.boot.StargateExecutor'
+    }
+}
+application {
+    mainClass = 'com.apple.aml.stargate.executor.boot.StargateExecutor'
+}
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xlint:unchecked', '-Xlint:deprecation']
+}
+
+idea {
+    module {
+        downloadSources = true
+    }
+}
+
+tasks.register('copyConfigs') {
+    copy {
+        from "${projectDir}/../config/logger/logback.xml"
+        into "${projectDir}/src/main/resources"
+    }
+}
+
+tasks.jar.dependsOn tasks.copyConfigs
+
+dependencies {
+    implementation project(":stargate-common-utils")
+    implementation project(":stargate-common-resources")
+    implementation project(":stargate-cli")
+    implementation libraries.coreJackson
+    implementation "commons-cli:commons-cli:${commonsCliVersion}"
+    implementation "commons-io:commons-io:${commonsIoVersion}"
+    implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
+    implementation(project(":stargate-pipeline")) {
+        exclude group: "org.apache.logging.log4j"
+        exclude group: "org.slf4j"
+        exclude group: "ch.qos.logback"
+        exclude group: "log4j"
+        exclude group: "org.codehaus.jackson"
+        exclude group: "com.apple.aml.stargate", module: "stargate-connector-iceberg-utils"
+    }
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    implementation libraries.logback
+    implementation("org.apache.beam:beam-runners-flink-${flinkMajorVersion}:${beamVersion}") {
+        exclude group: "org.apache.flink"
+        exclude group: "org.apache.beam", module: "beam-sdks-java-extensions-google-cloud-platform-core"
+    }
+    implementation("org.apache.beam:beam-runners-spark-3:${beamVersion}") {
+        exclude group: "org.apache.logging.log4j"
+        exclude group: "org.slf4j"
+        exclude group: "ch.qos.logback"
+        exclude group: "log4j"
+        exclude group: "org.apache.beam", module: "beam-sdks-java-extensions-google-cloud-platform-core"
+    }
+    implementation("org.apache.spark:spark-streaming-kafka-0-10_${scalaBaseVersion}:${sparkVersion}") {
+        exclude group: "org.apache.spark", module: "spark-tags_${scalaBaseVersion}"
+        exclude group: "org.apache.hadoop", module: "hadoop-client-runtime"
+    }
+    implementation "com.fasterxml.jackson.module:jackson-module-scala_${scalaBaseVersion}:${jacksonVersion}"
+    implementation project(':stargate-connector-iceberg-utils')
+    implementation libraries.iceberg
+    implementation "com.lmax:disruptor:${disruptorVersion}"
+    implementation "com.conversantmedia:disruptor:${cDisruptorVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+}
+def gitVersionShort = System.getenv("GIT_COMMIT_SHORT")
+if (gitVersionShort != null && !artifactory_password.isBlank()) {
+    file("src/main/resources/version.info").append(version.replaceAll('-SNAPSHOT', ''))
+}

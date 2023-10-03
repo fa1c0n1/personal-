@@ -1,0 +1,21 @@
+configurations {
+    repackaged.extendsFrom implementation
+}
+configurations.repackaged.setCanBeResolved(true)
+dependencies {
+    repackaged "com.apple.aml:aml-dataplatform-java-sdk:${adpVersion}"
+}
+jar {
+    from {
+        delete "$buildDir/libs/stargate-repackaged-jars"
+        copy {
+            from {
+                configurations.repackaged.collect { it.isDirectory() || !it.exists() ? it : zipTree(it) }
+            }
+            into "$buildDir/libs/stargate-repackaged-jars"
+            include "com/apple/aml/**"
+            exclude "com/apple/aml/dataplatform/client/rpc/**"
+        }
+        files("$buildDir/libs/stargate-repackaged-jars")
+    }
+}

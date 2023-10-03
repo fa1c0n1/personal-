@@ -1,0 +1,7 @@
+dependencies {
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    implementation project(":stargate-services-spec")
+    implementation project(":stargate-common-utils")
+    implementation "com.google.inject:guice:${guiceVersion}"
+    implementation "io.prometheus:simpleclient_common:${prometheusVersion}"
+}

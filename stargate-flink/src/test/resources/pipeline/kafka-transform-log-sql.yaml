@@ -1,0 +1,56 @@
+apiVersion: "stargate.aml.apple.com/v1"
+kind: StargateDeployment
+metadata:
+  name: stargate-simple-example-v1
+spec:
+  runner: nativeFlink
+  deploymentSize: small
+  numberOfWorkers: 1
+  debugMode: silent
+  definition:
+    failOnError: false
+    logOnError: true
+    reader0:
+      connectId: sdp-kafka-config-uat
+      name: readKafka
+      type: flinkSQL
+      config:
+        schemaId: "com.apple.aml.stargate.uat.internal.kafka_test",
+        sql: |
+          CREATE TABLE kafka_test (
+              `kafka_value` STRING,
+              `event_time` TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+              `partition` BIGINT METADATA VIRTUAL,
+              `offset` BIGINT METADATA VIRTUAL
+          ) WITH (
+          'connector' = 'kafka',
+          'topic' = 'sdp_stargate_input_test_v1',
+          'scan.startup.mode' = 'latest-offset',
+          'properties.bootstrap.servers' = 'isds-kafka-sdp-uat-west2-lkf01.g.apple.com:9094, isds-kafka-sdp-uat-west2-lkf02.g.apple.com:9094, isds-kafka-sdp-uat-west2-lkf03.g.apple.com:9094, isds-kafka-sdp-uat-west2-lkf04.g.apple.com:9094, isds-kafka-sdp-uat-west2-lkf05.g.apple.com:9094, isds-kafka-sdp-uat-west2-lkf06.g.apple.com:9094',
+          'properties.group.id' = '${properties.group.id}',
+          'properties.sasl.jaas.config' = '${properties.sasl.jaas.config}',
+          'properties.security.protocol' = 'SASL_SSL',
+          'properties.ssl.truststore.location' = '/mnt/app/shared/lib/kafka2_keystore.jks',
+          'properties.ssl.truststore.password' = '${properties.ssl.truststore.password}',
+          'properties.ssl.keystore.location' = '/mnt/app/shared/lib/kafka2_keystore.jks',
+          'properties.ssl.keystore.password' = '${properties.ssl.truststore.password}',
+          'properties.sasl.mechanism' = 'SCRAM-SHA-512',
+          'format' = 'raw',
+          'value.format' = 'raw'
+          )
+    transformer0:
+      name: FlinkSQLTransformer
+      type: flinkSQLTransformer
+      config:
+        schemaId: "com.apple.aml.stargate.uat.internal.kafka_test1"
+        sql: |
+          SELECT a.kafka_value.jobid as jobid ,
+          concat(a.kafka_value.data.firstName,' ', a.kafka_value.data.lastName) as data ,
+          a.kafka_value.event_dt as event_dt , a.kafka_value.source as source , 
+          a.kafka_value.id as id , a.kafka_value.uuid as uuid , 
+          a.kafka_value.`timestamp` as `timestamp` FROM kafka_test1 a;
+    writer0:
+      name: Log
+      type: flinkSQLLogger
+    dag:
+      - readKafka->FlinkSQLTransformer->Log

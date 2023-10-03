@@ -1,0 +1,25 @@
+dependencies {
+    compileOnly libraries.beamCompileOnly
+    implementation libraries.beamImplementation
+    implementation project(":stargate-common-utils")
+    implementation project(":stargate-pipeline-utils")
+    implementation project(":stargate-beam-utils")
+    implementation("com.apple.pie.cassandra:cassandra-client:${pieCassandraVersion}") {
+        exclude group: "net.jpountz.lz4", module: "lz4"
+    }
+    implementation "org.apache.beam:beam-sdks-java-io-cassandra:${beamVersion}"
+    annotationProcessor "com.google.auto.value:auto-value:${googleAutoValueVersion}"
+
+    compileOnly "com.google.auto.service:auto-service-annotations:${googleAutoServiceAnnotationsVersion}"
+    compileOnly "com.google.auto.value:auto-value-annotations:${googleAutoValueAnnotationsVersion}"
+
+    compileOnly "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation("com.apple.amp.external.schema-store:amp-schema-store-client:${schemaStoreVersion}") {
+        exclude group: "com.fasterxml.jackson.core", module: "jackson-databind"
+    }
+    implementation "io.prometheus:simpleclient_common:${prometheusVersion}"
+    implementation "org.freemarker:freemarker:${freemarkerVersion}"
+    implementation "com.apple.pie.queue:schema-ext:${pieKafkaSchemaextVersion}"
+    implementation "com.apple.pie.queue:avro-serializer:${pieKafkaAvroVersion}"
+}
+sourceSets.main.java.srcDirs += '.out/generated/sources/annotationProcessor'

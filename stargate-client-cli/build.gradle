@@ -1,0 +1,37 @@
+apply plugin: 'project-report'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java'
+
+jar {
+    manifest {
+        attributes "Main-Class": "com.apple.aml.stargate.cli.boot.StargateClient"
+    }
+}
+sourceCompatibility = 11
+targetCompatibility = 11
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xlint:unchecked', '-Xlint:deprecation', "-Aproject=${project.group}/${project.name}"]
+}
+
+idea {
+    module {
+        downloadSources = true
+    }
+}
+
+dependencies {
+    implementation "info.picocli:picocli:${picocliVersion}"
+    implementation "commons-io:commons-io:${commonsIoVersion}"
+    implementation "org.apache.commons:commons-exec:${commonsExecVersion}"
+    annotationProcessor "info.picocli:picocli-codegen:${picocliVersion}"
+}
+def gitVersionShort = System.getenv("GIT_COMMIT_SHORT")
+if (gitVersionShort != null && !artifactory_password.isBlank()) {
+    file("src/main/resources/version.info").append(version.replaceAll('-SNAPSHOT', ''))
+}
+
+shadowJar {
+    minimize()
+}

@@ -1,0 +1,27 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+    compileOnly libraries.beamCompileOnly
+    implementation project(":stargate-common-utils")
+    compileOnly "org.apache.iceberg:iceberg-hive-metastore:${icebergVersion}"
+    compileOnly "org.apache.iceberg:iceberg-core:${icebergVersion}"
+    compileOnly "org.apache.iceberg:iceberg-parquet:${icebergVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+}
+
+tasks.jar.dependsOn tasks.shadowJar
+tasks.jar.configure {
+    classifier = "empty"
+    archiveClassifier = "empty"
+}
+
+shadowJar {
+    archiveClassifier = null
+    configurations = [project.configurations.compileClasspath]
+    zip64 = true
+    //relocate 'org.apache.avro', 'org.apache.iceberg.shaded.org.apache.avro'
+    //relocate 'avro.shaded', 'org.apache.iceberg.shaded.org.apache.avro.shaded'
+    relocate 'org.apache.parquet', 'org.apache.iceberg.shaded.org.apache.parquet'
+    relocate 'shaded.parquet', 'org.apache.iceberg.shaded.org.apache.parquet.shaded'
+    minimize()
+}

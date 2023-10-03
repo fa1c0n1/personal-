@@ -1,0 +1,17 @@
+dependencies {
+    implementation project(":stargate-common-utils")
+    implementation project(":stargate-common-resources")
+    implementation libraries.coreJackson
+    implementation "com.google.guava:guava:${guavaVersion}"
+    compileOnly "io.fabric8:kubernetes-client-api:${kubernetesFabricVersion}"
+    compileOnly "io.fabric8:openshift-client-api:${kubernetesFabricVersion}"
+    implementation "io.fabric8:kubernetes-client:${kubernetesFabricVersion}"
+    implementation "io.fabric8:openshift-client:${kubernetesFabricVersion}"
+    annotationProcessor "io.fabric8:crd-generator-apt:${kubernetesFabricVersion}"
+    implementation "io.javaoperatorsdk:operator-framework-core:${k8sOperatorsdkVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+    implementation "org.cache2k:cache2k-core:${cache2kVersion}"
+    implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
+    implementation "com.apple.ais.accountsecurity:rest:${accountSecurityRestVersion}"
+    implementation "com.apple.aiml.spi:surface-client:${surfaceClientVersion}"
+}

@@ -1,0 +1,94 @@
+apply plugin: 'application'
+apply plugin: 'java'
+
+dependencies {
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
+    implementation project(":stargate-common-utils")
+    implementation project(":stargate-server-utils")
+    implementation project(":stargate-spring-utils")
+    implementation project(":stargate-common-resources")
+    implementation project(":stargate-kubernetes-utils")
+    implementation project(":stargate-kafka-utils")
+    implementation("com.apple.aml.stargate.datahub:stargate-datahub-ingestion:${dataCatelogSdkVerions}") {
+        exclude group: "org.apache.logging.log4j"
+        exclude group: "org.springframework.boot"
+        exclude group: "org.springframework"
+        exclude group: "com.apple.ist.idms"
+    }
+    implementation libraries.coreJackson
+    implementation "commons-io:commons-io:${commonsIoVersion}"
+    implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
+    implementation ("com.apple.aml.stargate:stargate-rpc-spec:${stargateRpcSpec}") {
+        exclude group: "io.grpc", module: "grpc-netty-shaded"
+    }
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    compileOnly "com.apple.pie.queue:avro-serializer:${pieKafkaAvroVersion}"
+    compileOnly "com.apple.pie.queue:schema-ext:${pieKafkaSchemaextVersion}"
+    compileOnly "com.apple.pie.queue:kafka-pie-client:${pieKafkaVersion}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation("com.apple.amp.external.schema-store:amp-schema-store-client:${schemaStoreVersion}") {
+        exclude group: "com.fasterxml.jackson.core", module: "jackson-databind"
+    }
+    implementation "org.apache.avro:avro:${apacheAvroVersion}"
+    implementation "org.cache2k:cache2k-core:${cache2kVersion}"
+    implementation("com.apple.appeng.aluminum.starters:aluminum-starter-reactive-service:${aluminumVersion}") {
+        exclude group: 'com.apple.appeng.aluminum.starters', module: 'aluminum-starter-logging'
+        exclude group: 'com.apple.appeng.aluminum.starters', module: 'aluminum-starter-tracing'
+        exclude group: 'com.apple.appeng.aluminum.starters', module: 'aluminum-starter-metrics'
+    }
+    implementation "com.apple.appeng.aluminum:aluminum-data-mongodb:${aluminumVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-aop:${springBootVersion}"
+    implementation ("org.springframework.boot:spring-boot-starter-security:${springBootVersion}") {
+        exclude group: 'org.springframework.security'
+    }
+    implementation "org.springframework.security:spring-security-web:${springSecurityVersion}"
+    implementation "org.springframework.security:spring-security-config:${springSecurityVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-data-mongodb:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-data-jdbc:${springBootVersion}"
+    implementation "com.zaxxer:HikariCP:${hikariVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
+    implementation "org.springframework.cloud:spring-cloud-starter:${springCloudVersion}"
+//  implementation "org.springframework.cloud:spring-cloud-starter-sleuth:${springCloudVersion}"
+    implementation "org.mongodb:mongodb-driver-reactivestreams:${mongodbVersion}"
+    implementation "org.mongodb:mongodb-driver-sync:${mongodbVersion}"
+    implementation "io.projectreactor.netty:reactor-netty:${reactorNettyVersion}"
+    implementation "org.apache.httpcomponents:httpclient:${apacheHttpcomponents}"
+    implementation "org.apache.calcite:calcite-core:${calciteVersion}"
+    implementation("org.apache.calcite:calcite-mongodb:${calciteVersion}") {
+        exclude group: 'org.mongodb'
+    }
+    implementation "com.graphql-java-kickstart:graphql-java-tools:${graphqlToolsVersion}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jaksondatatypeJsrVersion}"
+    implementation "org.apache.commons:commons-pool2:${commonsPoolVersion}"
+    implementation "org.freemarker:freemarker:${freemarkerVersion}"
+    implementation "org.apache.ignite:ignite-core:${igniteVersion}"
+    implementation "org.apache.ignite:ignite-slf4j:${igniteVersion}"
+    implementation "${serviceTalkGroup}:servicetalk-http-api:${serviceTalkVersion}"
+    implementation "io.prometheus:simpleclient_common:${prometheusVersion}"
+    compileOnly("io.fabric8:kubernetes-model-core:${kubernetesFabricVersion}") {
+        exclude group: "com.fasterxml.jackson.core"
+    }
+    implementation "com.apple.aiml.spi:surface-client:${surfaceClientVersion}"
+}
+application {
+    mainClassName = 'com.apple.aml.stargate.app.boot.App'
+}
+
+tasks.register('copyConfigs') {
+    copy {
+        from "${projectDir}/../config/logger/logback.xml"
+        into "${projectDir}/src/main/resources"
+    }
+}
+
+tasks.jar.dependsOn tasks.copyConfigs
+
+def gitVersionShort = System.getenv("GIT_COMMIT_SHORT")
+if (gitVersionShort != null && !gitVersionShort.isBlank()) {
+    file("src/main/resources/application.conf").append("\n\nstargate.versionInfo.version = \"" + version.replaceAll('-SNAPSHOT', '') + "\"")
+    file("src/main/resources/application.conf").append("\nstargate.versionInfo.tag = \"" + gitVersionShort + "\"")
+    file("src/main/resources/application.conf").append("\nstargate.versionInfo.buildTime = \"" + new Date().format("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") + "\"")
+    file("src/main/resources/version.info").append(version.replaceAll('-SNAPSHOT', ''))
+}

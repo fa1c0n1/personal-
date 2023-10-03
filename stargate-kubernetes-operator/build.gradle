@@ -1,0 +1,79 @@
+apply plugin: 'rio-application'
+apply plugin: 'java'
+apply plugin: 'project-report'
+apply plugin: 'application'
+
+rio {
+    application {
+        mainClass = 'com.apple.aml.stargate.k8s.boot.StargateOperator'
+    }
+}
+application {
+    mainClass = 'com.apple.aml.stargate.k8s.boot.StargateOperator'
+}
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xlint:unchecked', '-Xlint:deprecation']
+}
+
+idea {
+    module {
+        downloadSources = true
+    }
+}
+
+tasks.register('copyConfigs') {
+    copy {
+        from "${projectDir}/../config/logger/logback.xml"
+        into "${projectDir}/src/main/resources"
+    }
+}
+
+tasks.jar.dependsOn tasks.copyConfigs
+
+dependencies {
+    implementation project(":stargate-common-utils")
+    implementation project(":stargate-common-resources")
+    implementation project(":stargate-server-utils")
+    implementation project(":stargate-spring-utils")
+    implementation project(":stargate-kubernetes-utils")
+    implementation project(":stargate-observability-agent")
+    implementation libraries.coreJackson
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    implementation libraries.logback
+    implementation "com.lmax:disruptor:${disruptorVersion}"
+    implementation "com.conversantmedia:disruptor:${cDisruptorVersion}"
+    implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
+    implementation "com.google.guava:guava:${guavaVersion}"
+    compileOnly "io.fabric8:kubernetes-client-api:${kubernetesFabricVersion}"
+    compileOnly "io.fabric8:openshift-client-api:${kubernetesFabricVersion}"
+    implementation "io.fabric8:kubernetes-client:${kubernetesFabricVersion}"
+    implementation "io.fabric8:openshift-client:${kubernetesFabricVersion}"
+    annotationProcessor "io.fabric8:crd-generator-apt:${kubernetesFabricVersion}"
+    implementation "io.javaoperatorsdk:operator-framework-core:${k8sOperatorsdkVersion}"
+    implementation "io.javaoperatorsdk:operator-framework:${k8sOperatorsdkVersion}"
+    annotationProcessor "io.javaoperatorsdk:operator-framework:${k8sOperatorsdkVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+    implementation "org.freemarker:freemarker:${freemarkerVersion}"
+    implementation "org.cache2k:cache2k-core:${cache2kVersion}"
+    implementation "commons-io:commons-io:${commonsIoVersion}"
+    implementation "commons-codec:commons-codec:${commonsCodecVersion}"
+    implementation "io.prometheus:simpleclient_httpserver:${prometheusVersion}"
+    implementation "org.springframework:spring-context:${springVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-aop:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}"
+    implementation "io.projectreactor.netty:reactor-netty:${reactorNettyVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
+    implementation "org.springframework:spring-beans:${springVersion}"
+    implementation "io.prometheus:simpleclient_common:${prometheusVersion}"
+    implementation "io.prometheus:simpleclient_hotspot:${prometheusVersion}"
+    implementation "io.github.java-diff-utils:java-diff-utils:${diffutilsVersion}"
+}
+def gitVersionShort = System.getenv("GIT_COMMIT_SHORT")
+if (gitVersionShort != null && !artifactory_password.isBlank()) {
+    file("src/main/resources/version.info").append(version.replaceAll('-SNAPSHOT', ''))
+}

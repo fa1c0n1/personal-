@@ -1,0 +1,15 @@
+{
+  "type": "record",
+  "name": "ByteArrayStringData",
+  "namespace": "com.apple.aml.stargate.#{ENV}.internal",
+  "fields": [
+    {
+      "name": "data",
+      "type": [
+        "null",
+        "string"
+      ],
+      "doc": "this field byteArray is base46Encoded data"
+    }
+  ]
+}

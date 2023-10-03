@@ -1,0 +1,19 @@
+{
+  "type": "record",
+  "name": "IcebergCommit",
+  "namespace": "com.apple.aml.stargate.#{ENV}.internal",
+  "fields": [
+    {
+      "name": "dbName",
+      "type": "string"
+    },
+    {
+      "name": "tableName",
+      "type": "string"
+    },
+    {
+      "name": "dataFile",
+      "type": "string"
+    }
+  ]
+}

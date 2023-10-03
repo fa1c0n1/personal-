@@ -1,0 +1,39 @@
+{
+  "type": "record",
+  "name": "KafkaMetadata",
+  "namespace": "com.apple.aml.stargate.#{ENV}.internal",
+  "fields": [
+    {
+      "name": "timestamp",
+      "type": "long"
+    },
+    {
+      "name": "offset",
+      "type": "long"
+    },
+    {
+      "name": "partition",
+      "type": "int"
+    },
+    {
+      "name": "topic",
+      "type": "string"
+    },
+    {
+      "name": "serializedKeySize",
+      "type": "int"
+    },
+    {
+      "name": "serializedValueSize",
+      "type": "int"
+    },
+    {
+      "name": "key",
+      "type": "string"
+    },
+    {
+      "name": "schemaId",
+      "type": "string"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+name = radar-ingest
+appId = 12345
+author = "madhu.babu@apple.com"
+environment = DEV
+config = {
+  timeout = 5s
+  executionType = STREAMING
+}
+reader = {
+  name = ReadFromDhariKafka
+  type = ACIKafka
+  config = {
+    consumerGroupId = radar-01
+  }
+}
+writer = {
+  name = SaveToHdfs
+  type = Hdfs
+  config = {
+    partitionColumn = event_time
+  }
+}
+
+dag = "ReadFromDhariKafka->SaveToHdfs"

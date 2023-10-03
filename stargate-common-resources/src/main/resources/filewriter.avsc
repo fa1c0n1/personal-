@@ -1,0 +1,18 @@
+{
+  "type": "record",
+  "name": "FileDetails",
+  "namespace": "com.apple.aml.stargate.#{ENV}.internal",
+  "fields": [
+    {
+      "name": "fileName",
+      "type": "string"
+    },
+    {
+      "name": "recordCount",
+      "type": [
+        "null",
+        "long"
+      ]
+    }
+  ]
+}

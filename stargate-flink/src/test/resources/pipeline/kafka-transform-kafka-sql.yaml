@@ -1,0 +1,119 @@
+apiVersion: "stargate.aml.apple.com/v1"
+kind: StargateDeployment
+metadata:
+  name: stargate-simple-example-v1
+spec:
+  runner: nativeFlink
+  deploymentSize: small
+  numberOfWorkers: 1
+  debugMode: silent
+  definition:
+    schemas:
+      com.apple.aml.stargate.uat.internal.kafka_input: |
+        {
+          "type": "record",
+          "name": "InputTable",
+          "fields": [
+            {
+              "name": "kafka_value",
+              "type": {
+                "type": "record",
+                "name": "KafkaValue",
+                "fields": [
+                  {
+                    "name": "data",
+                    "type": {
+                      "type": "record",
+                      "name": "Data",
+                      "fields": [
+                        {
+                          "name": "firstName",
+                          "type": "string"
+                        },
+                        {
+                          "name": "lastName",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      com.apple.aml.stargate.uat.internal.kafka_output: |
+        {
+          "type": "record",
+          "name": "InputTable",
+          "fields":
+         [
+              {
+                "name": "data",
+                "type": "string"
+               }
+          ]
+        }
+    failOnError: false
+    logOnError: true
+    reader0:
+      connectId: sdp-kafka-config-uat
+      name: readKafka
+      type: FlinkSQLSource
+      config:
+        schemaId: "com.apple.aml.stargate.uat.internal.kafka_input"
+        sql: |
+          CREATE TABLE kafka_input (
+              `kafka_value` STRING,
+              `event_time` TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+              `partition` BIGINT METADATA VIRTUAL,
+              `offset` BIGINT METADATA VIRTUAL
+          ) WITH (
+          'connector' = 'kafka',
+          'topic' = 'sdp_stargate_input_test_v1',
+          'scan.startup.mode' = 'latest-offset',
+          'properties.bootstrap.servers' = 'isds-kafka-sdp-uat-west2-lkf01.g.apple.com:9094, isds-kafka-sdp-uat-west2-lkf02.g.apple.com:9094, isds-kafka-sdp-uat-west2-lkf03.g.apple.com:9094, isds-kafka-sdp-uat-west2-lkf04.g.apple.com:9094, isds-kafka-sdp-uat-west2-lkf05.g.apple.com:9094, isds-kafka-sdp-uat-west2-lkf06.g.apple.com:9094',
+          'properties.group.id' = '${properties.group.id}',
+          'properties.sasl.jaas.config' = '${properties.sasl.jaas.config}',
+          'properties.security.protocol' = 'SASL_SSL',
+          'properties.ssl.truststore.location' = '/mnt/app/shared/lib/kafka2_keystore.jks',
+          'properties.ssl.truststore.password' = '${properties.ssl.truststore.password}',
+          'properties.ssl.keystore.location' = '/mnt/app/shared/lib/kafka2_keystore.jks',
+          'properties.ssl.keystore.password' = '${properties.ssl.truststore.password}',
+          'properties.sasl.mechanism' = 'SCRAM-SHA-512',
+          'format' = 'raw',
+          'value.format' = 'raw'
+          )
+    transformer0:
+      name: sqlTransform
+      type: FlinkSQLTransformer
+      config:
+        schemaId: "com.apple.aml.stargate.uat.internal.kafka_output"
+        sql: |
+          SELECT concat(a.kafka_value.data.firstName,' ', a.kafka_value.data.lastName) as data FROM kafka_output a;
+    writer0:
+      connectId: sdp-kafka-config-uat
+      name: writeKafka
+      type: FlinkSQLSink
+      config:
+        sql: |
+          CREATE TABLE FlinkSQLSink_table (
+            `data` STRING
+          ) WITH (
+          'connector' = 'kafka',
+          'topic' = 'sdp_stargate_input_test',
+          'scan.startup.mode' = 'latest-offset',
+          'properties.bootstrap.servers' = 'isds-kafka-sdp-uat-west2-lkf01.g.apple.com:9094, isds-kafka-sdp-uat-west2-lkf02.g.apple.com:9094, isds-kafka-sdp-uat-west2-lkf03.g.apple.com:9094, isds-kafka-sdp-uat-west2-lkf04.g.apple.com:9094, isds-kafka-sdp-uat-west2-lkf05.g.apple.com:9094, isds-kafka-sdp-uat-west2-lkf06.g.apple.com:9094',
+          'properties.group.id' = '${properties.group.id}',
+          'properties.sasl.jaas.config' = '${properties.sasl.jaas.config}',
+          'properties.security.protocol' = 'SASL_SSL',
+          'properties.ssl.truststore.location' = '/mnt/app/shared/lib/kafka2_keystore.jks',
+          'properties.ssl.truststore.password' = '${properties.ssl.truststore.password}',
+          'properties.ssl.keystore.location' = '/mnt/app/shared/lib/kafka2_keystore.jks',
+          'properties.ssl.keystore.password' = '${properties.ssl.truststore.password}',
+          'properties.sasl.mechanism' = 'SCRAM-SHA-512',
+          'format' = 'json',
+          'value.format' = 'json'
+          )
+    dag:
+      - readKafka->sqlTransform->writeKafka

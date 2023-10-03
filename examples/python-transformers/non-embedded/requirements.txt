@@ -1,0 +1,3 @@
+stargate_services_spec~=1.0.7
+wheel
+Faker

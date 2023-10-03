@@ -1,0 +1,66 @@
+buildscript {
+    dependencies {
+        classpath "com.apple.cie.rio:gradle-build-plugin:3.+"
+    }
+}
+
+plugins {
+    id 'idea'
+    id "io.freefair.lombok" version "5.1.1"
+    id 'distribution'
+    id 'maven-publish'
+    id "java"
+}
+
+apply plugin: "java"
+apply plugin: 'distribution'
+apply plugin: 'rio-library'
+apply plugin: "rio-group"
+apply plugin: "idea"
+apply plugin: "io.freefair.lombok"
+
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+task sourceJar(type: Jar) {
+    archiveClassifier = "sources"
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xlint:unchecked', '-Xlint:deprecation']
+}
+
+tasks.withType(Javadoc).all {
+    enabled = false
+}
+
+test {
+    useTestNG()
+    testLogging {
+        exceptionFormat 'full'
+    }
+}
+
+idea {
+    module {
+        downloadSources = true
+    }
+}
+
+rio {
+    library {
+        isPublic = true
+    }
+}
+
+javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+javadocJar.enabled = false
+
+
+dependencies {
+    compileOnly "com.apple.aml.stargate:stargate-services-spec:${stargateSpecVersion}"
+    compileOnly "org.slf4j:slf4j-api:${slf4jVersion}"
+    compileOnly "javax.inject:javax.inject:1"
+}

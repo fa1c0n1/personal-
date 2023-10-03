@@ -1,0 +1,149 @@
+namespace: aml-shuri-prod
+cluster: us-east-1a
+replicaCount: 4
+kube:
+  enabled: true
+  priorityClassName: p2
+aws:
+  enabled: false
+image:
+  registry: docker.apple.com
+  repository: shuri
+  name: stargate
+  tag: latest
+  pullPolicy: Always
+
+grpc:
+  enabled: true
+  service:
+    port: 8082
+  annotations:
+    kubernetes.io/ingress.class: "plb.v1"
+    pie.traffic.plb/aliases: "stargate-grpc.apple.com,stargate-grpc.g.apple.com"
+    pie.traffic.plb/certificate_secret: "stargate-grpc-ingress-cert"
+    pie.traffic.plb/key_secret: "stargate-grpc-ingress-key"
+    pie.traffic.plb/grpc_enable: "true"
+mongodb:
+  enabled: true
+  namespace: isdataservices
+  cluster: us-east-1a
+thrift:
+  enabled: false
+  service:
+    port: 8081
+app:
+  environment: PROD
+  applicationProperties:
+    APP_MODE: PROD
+    PLATFORM_APPLICATION_ID: shuri
+    PLATFORM_PROCESS_NAME: us-west-1a
+    PLATFORM_WORK_UNIT_ID: pod1
+    PLATFORM_JOB_ID: hostname
+    PLATFORM_SHORT_INSTANCE_ID: stargate-prod
+    HUBBLE_TCP_URL: "tcp://hubble-tcp-publish-corp.apple.com:9898"
+    READINESS_ENABLE_CHECK: true
+    LIVENESS_ENABLE_CHECK: true
+    GSLB_ENABLE_CHECK: true
+    APP_DB_INSTANCES: "ma4-mi2p-lmdb04.corp.apple.com:10909,ma4-mi2p-lmdb05.corp.apple.com:10909,ma4-mi2p-lmdb06.corp.apple.com:10909,msc2-maasp-mgt01-lmdb04.msc.apple.com:10909,msc2-maasp-mgt01-lmdb05.msc.apple.com:10909,msc2-maasp-mgt01-lmdb02.msc.apple.com:10909,rn-maasp-mgt01-lmdb12.rno.apple.com:10911"
+    APP_DB_NAME: "stargate"
+    APP_DB_USER: "C=US,ST=California,O=Apple Inc.,OU=management:idms.group.1462913,CN=stargate.shuri1p.apple.com"
+    APP_DB_KEYSTORE_ALIAS: "stargate.shuri1p.apple.com"
+    APP_DB_KEYSTORE_PATH: "/app/keystore/stargate.jks"
+    APP_GITHUB_CLIENT_ID: athenaml-sa
+    APP_ACS_SPARK_PROJECT_ID: 3gxn0eiyita4
+    APP_ACS_SPARK_SOURCE_ID: dq8usucn5fdo
+    APP_ACS_SPARK_NAMESPACE_ID: 01xzbi6zcqsx
+    APP_GRPC_SERVICE: "stargate-grpc-aml-shuri-prod.us-east-1a.app.apple.com:443"
+    APP_K8S_SPLUNK_FORWARDER_VERSION: "8.2.5"
+  secretName: "aml-stargate-secret-prod"
+
+
+initContainers:
+  vault:
+    enabled: false
+    secretName: "aml-stargate-vault-secret-prod"
+    kubernetesServicePort: 6442
+  certd:
+    enabled: false
+  whisper:
+    enabled: true
+    env: prod
+
+ingress:
+  enabled: true
+  kubeAnnotations:
+    kubernetes.io/ingress.class: "plb.v1"
+    pie.traffic.plb/certificate_secret: "aml-stargate-ingress-cert"
+    pie.traffic.plb/key_secret: "aml-stargate-ingress-key"
+    pie.traffic.plb/aliases: "stargate-platform.apple.com,stargate-aml-shuri-prod.us-east-1a.app.apple.com,stargate-aml-shuri-prod.us-west-1a.app.apple.com"
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 5
+
+octopus:
+  enabled: false
+
+kubeLogPoller:
+  enabled: true
+
+splunk:
+  enabled: true
+  index: "stargate"
+  clusterName: "iag_prod"
+
+shuria3:
+  enabled: false
+  app:
+    enabled: false
+    javaVMArgs: "-DI3_ENV=PROD-HTTPS"
+    secretName: "aml-shuri-a3-secret-prod"
+  readinessProbe:
+    enabled: true
+    periodSeconds: 60
+    successThreshold: 1
+    timeoutSeconds: 1
+  livenessProbe:
+    enabled: true
+    periodSeconds: 60
+    successThreshold: 1
+    timeoutSeconds: 1
+
+readinessProbe:
+  enabled: true
+  #  initialDelaySeconds: 60
+  failureThreshold: 3
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+  httpGet:
+    path: /readiness
+    port: 8080
+livenessProbe:
+  enabled: true
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+  failureThreshold: 3
+  httpGet:
+    path: /health
+
+revisionHistoryLimit: 2
+deploymentStrategy: { }
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+  maxUnavailable: 1
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: { }
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  rolebinding:
+    create: true
+    name: "stargate-cluster-admin"
+    role: "cluster-admin"

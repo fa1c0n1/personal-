@@ -1,0 +1,18 @@
+dependencies {
+    compileOnly libraries.beamCompileOnly
+    implementation libraries.beamImplementation
+    implementation project(":stargate-common-utils")
+    implementation project(":stargate-pipeline-utils")
+    implementation project(":stargate-beam-utils")
+    implementation project(":stargate-kafka-utils")
+    compileOnly "com.apple.pie.queue:avro-serializer:${pieKafkaAvroVersion}"
+    compileOnly "com.apple.pie.queue:schema-ext:${pieKafkaSchemaextVersion}"
+    compileOnly "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation("com.apple.amp.external.schema-store:amp-schema-store-client:${schemaStoreVersion}") {
+        exclude group: "com.fasterxml.jackson.core", module: "jackson-databind"
+    }
+    implementation "io.prometheus:simpleclient_common:${prometheusVersion}"
+    implementation "org.freemarker:freemarker:${freemarkerVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+    implementation "com.apple.ist.ets.geneva:stratos-api:${stratosVersion}"
+}

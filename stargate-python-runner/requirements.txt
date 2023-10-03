@@ -1,0 +1,6 @@
+Jinja2~=3.1.2
+setuptools~=67.6.0
+grpcio~=1.54.0
+grpcio-tools~=1.54.0
+stargate_services_spec~=1.0.7
+apple-certifi~=2.2.1

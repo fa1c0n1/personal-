@@ -1,0 +1,158 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: stargate-system
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: stargate-operator
+  namespace: stargate-system
+type: Opaque
+data:
+  APP_DS_KEY: #{APP_DS_KEY}
+  APP_DS_PASSWORD: #{APP_DS_PASSWORD}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stargate-operator
+  namespace: stargate-system
+spec:
+  selector:
+    matchLabels:
+      app: stargate-operator
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: stargate-operator
+    spec:
+      serviceAccountName: stargate-operator
+      containers:
+        - name: stargate-operator
+          image: docker.apple.com/aml/stargate-kubernetes-operator:#{STARGATE_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: stargate-operator
+          env:
+            - name: APP_ID
+              value: "#{APP_ID}"
+            - name: APP_MODE
+              value: "#{APP_MODE}"
+            - name: APP_PVC_CLAIM
+              value: "#{APP_PVC_CLAIM}"
+            - name: JAVA_OPTS
+              value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 180
+            timeoutSeconds: 10
+            periodSeconds: 60
+            successThreshold: 1
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stargate-operator
+  namespace: stargate-system
+  labels:
+    app: stargate-operator
+spec:
+  type: ClusterIP
+  ports:
+    - name: web
+      port: 80
+      targetPort: 8080
+  selector:
+    app: stargate-operator
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: stargate-operator
+  namespace: stargate-system
+  labels:
+    app: stargate-operator
+spec:
+  podSelector:
+    matchLabels:
+      app: stargate-operator
+  ingress:
+    - { }
+  egress:
+    - { }
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: stargate-operator
+  namespace: stargate-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: stargate-operator
+rules:
+  - apiGroups:
+      - stargate.aml.apple.com
+    resources:
+      - stargatedeployments
+      - stargatedeployments/status
+    verbs:
+      - "*"
+  - apiGroups:
+      - apiextensions.k8s.io
+    resources:
+      - customresourcedefinitions
+    verbs:
+      - "*"
+  - apiGroups:
+      - ""
+      - "*"
+    resources:
+      - ""
+      - "*"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+      - "create"
+      - "update"
+      - "patch"
+      - "delete"
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: stargate-operator
+subjects:
+  - kind: ServiceAccount
+    name: stargate-operator
+    namespace: stargate-system
+roleRef:
+  kind: ClusterRole
+  name: stargate-operator
+  apiGroup: ""

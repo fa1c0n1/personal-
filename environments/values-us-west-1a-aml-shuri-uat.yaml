@@ -1,0 +1,156 @@
+namespace: aml-shuri-uat
+cluster: us-west-1a
+replicaCount: 2
+kube:
+  enabled: true
+  priorityClassName: p3
+aws:
+  enabled: false
+image:
+  registry: docker.apple.com
+  repository: shuri
+  name: stargate
+  tag: latest
+  pullPolicy: Always
+
+grpc:
+  enabled: true
+  service:
+    port: 8082
+  annotations:
+    kubernetes.io/ingress.class: "plb.v1"
+    pie.traffic.plb/aliases: "stargate-grpc-uat.apple.com,stargate-grpc-uat.g.apple.com"
+    pie.traffic.plb/certificate_secret: "stargate-grpc-ingress-cert"
+    pie.traffic.plb/key_secret: "stargate-grpc-ingress-key"
+    pie.traffic.plb/grpc_enable: "true"
+mongodb:
+  enabled: true
+  namespace: isdataservices
+  cluster: us-west-2a
+thrift:
+  enabled: false
+  service:
+    port: 8081
+app:
+  environment: UAT
+  applicationProperties:
+    APP_MODE: UAT
+    PLATFORM_APPLICATION_ID: shuri
+    PLATFORM_PROCESS_NAME: us-west-1a
+    PLATFORM_WORK_UNIT_ID: pod1
+    PLATFORM_JOB_ID: hostname
+    PLATFORM_SHORT_INSTANCE_ID: stargate-uat
+    HUBBLE_TCP_URL: "tcp://hubble-tcp-publish-corp.apple.com:9898"
+    READINESS_ENABLE_CHECK: true
+    LIVENESS_ENABLE_CHECK: true
+    GSLB_ENABLE_CHECK: true
+    APP_DB_INSTANCES: "st52q01nt-maasdlmdb001.dbs.ise.apple.com:10911,st52q01nt-maasdlmdb002.dbs.ise.apple.com:10911,st52q01nt-maasdlmdb003.dbs.ise.apple.com:10911,st52q01nt-maasdlmdb004.dbs.ise.apple.com:10911,mr51q01nt-maasdlmdb002.dbs.ise.apple.com:10911,mr51q01nt-maasdlmdb003.dbs.ise.apple.com:10911,mr51q01nt-maasdlmdb004.dbs.ise.apple.com:10911"
+    APP_DB_NAME: "stargate-uat"
+    APP_DB_USER: "C=US,ST=California,O=Apple Inc.,OU=management:idms.group.1462913,CN=stargate-uat.shuriuatrw.apple.com"
+    APP_DB_KEYSTORE_ALIAS: "stargate-uat.shuriuatrw.apple.com"
+    APP_DB_KEYSTORE_PATH: "/app/keystore/stargate.jks"
+    APP_GITHUB_CLIENT_ID: athenaml-sa
+    APP_ACS_SPARK_PROJECT_ID: g8ae5m7d6d6q
+    APP_ACS_SPARK_SOURCE_ID: nm4izquz2hlj
+    APP_ACS_SPARK_NAMESPACE_ID: 8ax3c2oi2sbx
+    APP_GRPC_SERVICE: "stargate-grpc-aml-shuri-uat.us-west-1a.app.apple.com:443"
+    APP_K8S_SPLUNK_FORWARDER_VERSION: "8.2.5"
+  secretName: "aml-stargate-secret-uat"
+
+initContainers:
+  vault:
+    enabled: false
+    secretName: "aml-stargate-vault-secret-uat"
+    kubernetesServicePort: 6442
+  certd:
+    enabled: false
+  whisper:
+    enabled: true
+    env: uat
+
+ingress:
+  enabled: true
+  kubeAnnotations:
+    kubernetes.io/ingress.class: "plb.v1"
+    pie.traffic.plb/certificate_secret: "aml-stargate-ingress-cert"
+    pie.traffic.plb/key_secret: "aml-stargate-ingress-key"
+    pie.traffic.plb/aliases: "stargate-uat-platform.apple.com"
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+
+octopus:
+  enabled: false
+
+kubeLogPoller:
+  enabled: true
+
+splunk:
+  enabled: true
+  index: "stargate_uat"
+  clusterName: "iag_test"
+
+shuria3:
+  enabled: false
+  app:
+    enabled: false
+    javaVMArgs: "-DI3_ENV=PROD-HTTPS"
+    secretName: "aml-shuri-a3-secret-uat"
+  readinessProbe:
+    enabled: true
+    periodSeconds: 60
+    successThreshold: 1
+    timeoutSeconds: 1
+  livenessProbe:
+    enabled: true
+    periodSeconds: 60
+    successThreshold: 1
+    timeoutSeconds: 1
+
+readinessProbe:
+  enabled: true
+  #  initialDelaySeconds: 60
+  failureThreshold: 3
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+  httpGet:
+    path: /readiness
+    port: 8080
+livenessProbe:
+  enabled: true
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+  failureThreshold: 3
+  httpGet:
+    path: /health
+
+revisionHistoryLimit: 2
+deploymentStrategy: { }
+#  type: RollingUpdate
+#  rollingUpdate:
+#    maxSurge: 1
+#    maxUnavailable: 0
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+  maxUnavailable: 1
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: { }
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  rolebinding:
+    create: true
+    name: "stargate-cluster-admin"
+    role: "cluster-admin"
+
+# nodeSelector:
+#   ipam: sticky

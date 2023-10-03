@@ -1,0 +1,101 @@
+apply plugin: 'rio-application'
+apply plugin: 'java'
+apply plugin: 'project-report'
+apply plugin: 'application'
+
+rio {
+    application {
+        mainClass = 'com.apple.aml.stargate.spark.facade.boot.SparkApp'
+    }
+}
+application {
+    mainClass = 'com.apple.aml.stargate.spark.facade.boot.SparkApp'
+}
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xlint:unchecked', '-Xlint:deprecation']
+}
+
+idea {
+    module {
+        downloadSources = true
+    }
+}
+
+tasks.register('copyConfigs') {
+    copy {
+        from "${projectDir}/../config/logger/logback.xml"
+        into "${projectDir}/src/main/resources"
+    }
+}
+
+tasks.jar.dependsOn tasks.copyConfigs
+
+dependencies {
+    implementation(project(":stargate-common-utils")) {
+        exclude group: "ch.qos.logback"
+        exclude group: "org.slf4j", module: "log4j-over-slf4j"
+        exclude group: "org.apache.logging.log4j", module: "log4j-to-slf4j"
+    }
+    implementation project(":stargate-common-resources")
+    implementation(project(":stargate-server-utils")) {
+        exclude group: "${serviceTalkGroup}"
+        exclude group: "ch.qos.logback"
+        exclude group: "org.slf4j", module: "log4j-over-slf4j"
+        exclude group: "org.apache.logging.log4j", module: "log4j-to-slf4j"
+    }
+    implementation(project(":stargate-spring-utils")) {
+        exclude group: "ch.qos.logback"
+        exclude group: "org.slf4j", module: "log4j-over-slf4j"
+        exclude group: "org.apache.logging.log4j", module: "log4j-to-slf4j"
+        exclude group: "org.springframework.boot", module: "spring-boot-starter-aop"
+        exclude group: "org.springframework.boot", module: "spring-boot-starter-webflux"
+    }
+    implementation libraries.coreJackson
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    implementation libraries.log4j2
+    implementation "com.lmax:disruptor:${disruptorVersion}"
+    implementation "com.conversantmedia:disruptor:${cDisruptorVersion}"
+    implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
+    implementation "com.google.guava:guava:${guavaVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+    implementation "org.cache2k:cache2k-core:${cache2kVersion}"
+    implementation "commons-io:commons-io:${commonsIoVersion}"
+    implementation "commons-codec:commons-codec:${commonsCodecVersion}"
+    implementation "io.prometheus:simpleclient_httpserver:${prometheusVersion}"
+    implementation "org.springframework:spring-context:${springVersion}"
+    implementation("org.springframework.boot:spring-boot-starter:${springBootVersion}") {
+        exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"
+        exclude group: "ch.qos.logback"
+    }
+    implementation "org.springframework.boot:spring-boot-starter-log4j2:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-aop:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}"
+    implementation "io.projectreactor.netty:reactor-netty:${reactorNettyVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
+    implementation "org.springframework:spring-beans:${springVersion}"
+    implementation ("com.apple.aml.stargate:stargate-rpc-spec:${stargateRpcSpec}") {
+        exclude group: "io.grpc", module: "grpc-netty-shaded"
+    }
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation ("net.devh:grpc-server-spring-boot-starter:2.14.0.RELEASE") {
+        exclude group: "io.grpc", module: "grpc-netty-shaded"
+    }
+    implementation "io.prometheus:simpleclient_common:${prometheusVersion}"
+    implementation "io.prometheus:simpleclient_hotspot:${prometheusVersion}"
+    compileOnly "org.apache.spark:spark-sql_${scalaBaseVersion}:${sparkVersion}"
+}
+configurations {
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+}
+def gitVersionShort = System.getenv("GIT_COMMIT_SHORT")
+if (gitVersionShort != null && !artifactory_password.isBlank()) {
+    file("src/main/resources/version.info").append(version.replaceAll('-SNAPSHOT', ''))
+}

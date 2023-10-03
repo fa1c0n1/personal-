@@ -1,0 +1,35 @@
+name = pipeline-y
+appId = 12345
+author = "madhu.babu@apple.com"
+config = {
+  timeout = 5s
+  executionType = STREAMING
+}
+transformer.0 = {
+  name = EnrichStoreActivity
+  type = JavaExecutor
+  config = {
+    className = com.apple.aml.stargate.pipeline.samples.StoreActivityEnricher
+    sourceType = github
+    sourceLink = "https://github.pie.apple.com/aml/stargate-pipeline-code/tree/pipeline-y/src/main/java/StoreActivityEnricher.java"
+  }
+}
+transformer.1 = {
+  name = GroupByUserName
+  type = GroupByTransformer
+  config = {
+    multimap = false
+    groupingKey = userName
+  }
+}
+transformer.2 = {
+  name = AttachUserInfoUsingLookup
+  type = JavaExecutor
+  config = {
+    className = com.apple.aml.stargate.pipeline.samples.UserLookupTransformer
+    sourceType = github
+    sourceLink = "https://github.pie.apple.com/aml/stargate-pipeline-code/tree/pipeline-y/src/main/java/UserLookupTransformer.java"
+  }
+}
+
+dag = "(ReadFromSAPInvoices -> (EnrichStoreActivity->AttachUserInfoUsingLookup->Zyzzz->deeee) -> SaveToLookupAbcd"

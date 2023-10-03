@@ -1,0 +1,28 @@
+dependencies {
+    compileOnly libraries.beamCompileOnly
+    implementation libraries.beamImplementation
+    implementation project(":stargate-services-spec")
+    implementation project(":stargate-common-utils")
+    implementation project(":stargate-pipeline-utils")
+    implementation project(":stargate-beam-utils")
+    implementation project(":stargate-kafka-utils")
+    compileOnly "com.apple.pie.queue:avro-serializer:${pieKafkaAvroVersion}"
+    compileOnly "com.apple.pie.queue:schema-ext:${pieKafkaSchemaextVersion}"
+    compileOnly "com.apple.pie.queue:kafka-pie-client:${pieKafkaVersion}"
+    implementation "org.apache.beam:beam-sdks-java-io-kafka:${beamVersion}"
+    compileOnly("org.apache.beam:beam-sdks-java-extensions-sql:${beamVersion}") {
+        exclude group: "org.apache.beam", module: "beam-sdks-java-io-mongodb"
+        exclude group: "org.mongodb", module: "mongo-java-driver"
+    }
+    compileOnly "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation("com.apple.amp.external.schema-store:amp-schema-store-client:${schemaStoreVersion}") {
+        exclude group: "com.fasterxml.jackson.core", module: "jackson-databind"
+    }
+    implementation "io.prometheus:simpleclient_common:${prometheusVersion}"
+    implementation "org.freemarker:freemarker:${freemarkerVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+    implementation "org.apache.commons:commons-pool2:${commonsPoolVersion}"
+}
+tasks.withType(Checkstyle) {
+    exclude '**/org/apache/beam/sdk/io/kafka/**'
+}

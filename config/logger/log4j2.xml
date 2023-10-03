@@ -1,0 +1,93 @@
+<Configuration status="WARN" packages="com.apple.aml.stargate.common.logging.log4j">
+    <Appenders>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <JsonLogLayout/>
+        </Console>
+        <RollingRandomAccessFile name="STDFILE" fileName="${env:APP_HOME}/logs/${env:APP_LOG_FILE_NAME:-stargate-pipeline}.log" filePattern="${env:APP_HOME}/logs/${env:APP_LOG_FILE_NAME:-stargate-pipeline}.%d{yyyyMMdd}.%i.log">
+            <JsonLogLayout/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingRandomAccessFile>
+        <Async name="ASYNCOUT">
+            <AppenderRef ref="STDOUT"/>
+        </Async>
+        <Async name="ASYNCFILE">
+            <AppenderRef ref="STDFILE"/>
+        </Async>
+    </Appenders>
+    <Loggers>
+        <Logger name="ch.qos.logback.classic.model.processor.LoggerModelHandler" level="WARN"/>
+        <Logger name="org.apache.kafka.clients.producer.ProducerConfig" level="ERROR"/>
+        <Logger name="org.apache.kafka.clients.consumer.ConsumerConfig" level="ERROR"/>
+        <Logger name="com.apple.aml.stargate" level="DEBUG"/>
+        <Logger name="com.apple.aml.dhari" level="DEBUG"/>
+        <Logger name="stargate" level="DEBUG"/>
+        <Logger name="dhari" level="DEBUG"/>
+        <Logger name="nativeml" level="DEBUG"/>
+        <Logger name="stargate.common.web.clients" level="INFO"/>
+        <Logger name="org.apache.hadoop.hive.conf.HiveConf" level="ERROR"/>
+        <Logger name="org.apache.flink.metrics.MetricGroup" level="ERROR"/>
+        <Logger name="org.apache.beam.sdk.options.PipelineOptionsFactory" level="ERROR"/>
+        <Logger name="org.apache.beam.sdk.util.MutationDetectors" level="ERROR"/>
+        <Logger name="org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline" level="ERROR"/>
+        <Logger name="com.amazonaws.auth.profile.internal.BasicProfileConfigLoader" level="ERROR"/>
+        <Logger name="org.apache.spark.SparkConf" level="ERROR"/>
+        <Logger name="org.apache.flink.runtime.taskmanager.Task" level="WARN"/>
+        <Logger name="org.apache.flink.runtime.taskexecutor.TaskExecutor" level="WARN"/>
+        <Logger name="org.apache.flink.streaming.runtime.tasks.StreamTask" level="WARN"/>
+        <Logger name="org.apache.flink.runtime.executiongraph.ExecutionGraph" level="WARN"/>
+        <Logger name="org.apache.flink.runtime.checkpoint.CheckpointCoordinator" level="WARN"/>
+        <Logger name="org.apache.flink.runtime.taskexecutor.slot.TaskSlotTableImpl" level="WARN"/>
+        <Logger name="org.apache.flink.runtime.state.heap" level="WARN"/>
+        <Logger name="org.apache.beam.sdk.runners.TransformHierarchy" level="WARN"/>
+        <Logger name="org.apache.beam.sdk.util.WindowTracing" level="WARN"/>
+        <Logger name="org.apache.beam.runners.flink.translation.wrappers.streaming.io.UnboundedSourceWrapper" level="WARN"/>
+        <Logger name="org.apache.beam.sdk.coders.SerializableCoder" level="ERROR"/>
+        <Logger name="org.apache.hadoop.io.compress.CodecPool" level="WARN"/>
+        <Logger name="org.apache.kafka.clients.consumer.internals.SubscriptionState" level="WARN"/>
+        <Logger name="org.apache.kafka.clients.ConfigurationInterceptorConfig" level="WARN"/>
+        <Logger name="org.apache.kafka.clients.Metadata" level="WARN"/>
+        <Logger name="org.apache.kafka.common.security" level="WARN"/>
+        <Logger name="com.apple.pie.queue" level="WARN"/>
+        <Logger name="com.apple.ihubble.client" level="WARN"/>
+        <Logger name="org.apache.beam.sdk.io.aws.s3.DefaultS3ClientBuilderFactory" level="WARN"/>
+        <Logger name="org.apache.kafka.common.utils.AppInfoParser" level="WARN"/>
+        <Logger name="org.apache.hadoop.hive" level="INFO"/>
+        <Logger name="org.apache.hadoop" level="INFO"/>
+        <Logger name="hive" level="INFO"/>
+        <Logger name="org.apache.ignite.internal" level="INFO"/>
+        <Logger name="org.apache.ignite.internal.IgniteKernal" level="INFO"/>
+        <Logger name="org.apache.ignite" level="INFO"/>
+        <Logger name="com.apple" level="WARN"/>
+        <Logger name="org.apache" level="WARN"/>
+        <Logger name="org.mongodb" level="WARN"/>
+        <Logger name="com.amazonaws" level="WARN"/>
+        <Logger name="relocated.com.apple" level="WARN"/>
+        <Logger name="appengAluminumMetricsLogger" level="OFF"/>
+        <Logger name="DSLog" level="WARN"/>
+        <Logger name="org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler" level="OFF"/>
+        <Logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="WARN"/>
+        <Logger name="org.apache.ignite.internal.processors.query.h2.sql.GridSqlQueryParser" level="ERROR"/>
+        <Logger name="org.apache.ignite.internal.processors.query.h2.QueryParser" level="ERROR"/>
+        <Logger name="io.prometheus.jmx" level="OFF"/>
+        <Logger name="stargate.common.utils.KafkaPrometheusMetricSyncer" level="WARN"/>
+        <Logger name="stargate.beam.sdk.metrics.PrometheusMetricsContainer" level="INFO"/>
+        <Logger name="stargate.common.utils.PrometheusUtils" level="INFO"/>
+        <Logger name="com.apple.ihubble.client.stats.HubbleAgent" level="ERROR"/>
+        <Logger name="org.apache.flink.runtime.util.HadoopUtils" level="ERROR"/>
+        <Logger name="org.springframework.boot.logging.logback.LogbackLoggingSystem" level="ERROR"/>
+        <Logger name="org.apache.hadoop.util.NativeCodeLoader" level="ERROR"/>
+        <Logger name="com.apple.pie.crypto.client.report.CryptoMetrics" level="ERROR"/>
+        <Logger name="com.apple.aml.stargate.runners.flink.utils.FlinkMetricReporter" level="WARN"/>
+        <Logger name="com.apple.appeng.aluminum.health.HealthCoordinator" level="ERROR"/>
+        <Logger name="net.snowflake" level="INFO"/>
+        <Logger name="com.apple.ai" level="DEBUG"/>
+        <Logger name="stargate.runtime.node" level="DEBUG"/>
+        <Root level="WARN" includeLocation="false" additivity="false">
+            <AppenderRef ref="ASYNCOUT"/>
+            <AppenderRef ref="ASYNCFILE"/>
+        </Root>
+    </Loggers>
+</Configuration>

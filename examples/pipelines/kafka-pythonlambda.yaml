@@ -1,0 +1,31 @@
+apiVersion: "stargate.aml.apple.com/v1"
+kind: StargateDeployment
+metadata:
+  name: kafka-py-lambda
+spec:
+  deploymentSize: small
+  logForwarder: default
+  pythonImage: docker.apple.com/aml/stargate-python-non-embedded-example:latest
+
+  definition:
+
+    reader:
+      name: DhariKafka
+      type: ACIKafka
+      connectId: get-valid-kafka-connectId-from-ops
+      config:
+        topic: test-topic0
+
+    transformer:
+      name: InvokeLambda
+      type: Python
+      config:
+        functionOptions:
+          file: /app/sampleapp/foo/bar/echo.py
+          class: Echo
+
+    writer:
+      name: DoNothing
+      type: NoOp
+
+    dag: "DhariKafka->InvokeLambda->DoNothing"

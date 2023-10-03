@@ -1,0 +1,56 @@
+apiVersion: "stargate.aml.apple.com/v1"
+kind: StargateDeployment
+metadata:
+  name: kafka-branch
+spec:
+  deploymentSize: small
+  logForwarder: default
+
+  definition:
+
+    nodes:
+      ReadFromSourceKafka:
+        type: ACIKafka
+        connectId: get-valid-kafka-connectId-from-ops
+        config:
+          topic: test-topic0
+
+      EvalBranchingRule:
+        type: Branch
+        config:
+          rules:
+            - rule1
+            - rule2
+            - rule3
+          expression: |
+            <#if schema.fullName == 'com.apple.aml.shuri.dev.SchemaA'>
+              rule1
+            <#elseif schema.fullName == 'com.apple.aml.shuri.dev.SchemaB'>
+              rule2
+            <#else>
+              rule3
+            </#if>
+      
+      WriteToKafka~rule1:
+        type: ACIKafka
+        connectId: get-valid-kafka-connectId-from-ops
+        config:
+          topic: test-topic1
+
+      WriteToKafka~rule2:
+        type: ACIKafka
+        connectId: get-valid-kafka-connectId-from-ops
+        config:
+          topic: test-topic2
+
+      WriteToKafka~rule3:
+        type: ACIKafka
+        connectId: get-valid-kafka-connectId-from-ops
+        config:
+          topic: test-topic3
+
+    dag:
+      - ReadFromSourceKafka->EvalBranchingRule
+      - EvalBranchingRule->"WriteToKafka~rule1"
+      - EvalBranchingRule->"WriteToKafka~rule2"
+      - EvalBranchingRule->"WriteToKafka~rule3"

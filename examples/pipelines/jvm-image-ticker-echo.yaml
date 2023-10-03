@@ -1,0 +1,37 @@
+apiVersion: "stargate.aml.apple.com/v1"
+kind: StargateDeployment
+metadata:
+  name: jvm-ticker
+spec:
+  deploymentSize: small
+  logForwarder: default
+  jvmImage: docker.apple.com/aml/stargate-jvm-image-transformers-example:latest
+
+  definition:
+
+    reader:
+      name: GenerateTick
+      type: Ticker
+      config:
+        schemaId: com.apple.aml.stargate.#{ENV}.internal.KeyValue
+        frequency: 10s
+        expression: |
+          {
+            "key" : "auto-${statics["java.util.UUID"].randomUUID()}",
+            "value" : "${record.epoc}"
+          }
+
+    transformer:
+      name: InvokeLambda
+      type: Java
+      logLevelIn: INFO
+      config:
+        className: com.apple.examples.transformers.Echo
+        context:
+          "foo": "bar"
+
+    writer:
+      name: DoNothing
+      type: NoOp
+
+    dag: "GenerateTick->InvokeLambda->DoNothing"

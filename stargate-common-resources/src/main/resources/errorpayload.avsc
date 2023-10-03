@@ -1,0 +1,84 @@
+{
+  "type": "record",
+  "name": "ErrorPayload",
+  "namespace": "com.apple.aml.stargate.#{ENV}.internal",
+  "fields": [
+    {
+      "name": "pipelineId",
+      "type": "string",
+      "doc": "pipeline in which this error happened"
+    },
+    {
+      "name": "appId",
+      "type": "long",
+      "doc": "appId of pipeline in which this error happened"
+    },
+    {
+      "name": "nodeName",
+      "type": "string",
+      "doc": "user defined node name where this error happened"
+    },
+    {
+      "name": "nodeType",
+      "type": "string",
+      "doc": "type of node where this error happened"
+    },
+    {
+      "name": "stage",
+      "type": "string",
+      "doc": "logical stage name at which this error happened"
+    },
+    {
+      "name": "key",
+      "type": "string",
+      "doc": "key associated with payload used inside stargate"
+    },
+    {
+      "name": "payload",
+      "type": [
+        "null",
+        "string"
+      ],
+      "doc": "base64 encoded byte string of AVRO GenericRecord"
+    },
+    {
+      "name": "schemaId",
+      "type": "string"
+    },
+    {
+      "name": "schemaVersion",
+      "type": "int"
+    },
+    {
+      "name": "json",
+      "type": "string",
+      "doc": "json string representation of payload"
+    },
+    {
+      "name": "errorClass",
+      "type": "string",
+      "doc": "java Exception class Name"
+    },
+    {
+      "name": "errorMessage",
+      "type": "string",
+      "doc": "java Exception error message ( exception.getLocalizedMessage() )"
+    },
+    {
+      "name": "errorStackTrace",
+      "type": "string",
+      "doc": "java Exception stack trace ( exception.getStackTrace().toString() )"
+    },
+    {
+      "name": "errorInfo",
+      "type": [
+        "null",
+        {
+          "type": "map",
+          "values": "string"
+        }
+      ],
+      "doc": "any other meta data which the code logic can share"
+    }
+  ]
+}

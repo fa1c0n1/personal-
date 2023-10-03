@@ -1,0 +1,4 @@
+dependencies {
+    compileOnly libraries.beamCompileOnly
+    implementation project(":stargate-common-utils")
+}

@@ -1,0 +1,104 @@
+# Eclipse
+.project
+.settings
+.classpath
+.externalToolBuilders
+
+# IntelliJ
+.idea
+*.iml
+
+*.mvn/*
+!*.mvn/wrapper*
+target
+
+# XCode
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+DerivedData
+*.xcworkspace
+xcuserdata
+profile
+*.hg
+/.hg/*
+dist/
+
+# Other
+.DS_Store
+.history
+*.swp
+.factorypath
+.dist
+.out
+.build
+.vscode
+*.ipr
+*.iws
+.metals
+/.metals/*
+
+# Gradle
+.gradle
+/build/
+
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+/bin
+/.build
+/out
+
+# misc
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+swagger.json
+swagger.yaml
+debug.log
+*/build/*
+*/.build/*
+*/bin/*
+*/out/production/*
+*/out/test/*
+lombok.config
+/.pipeline
+/Dockerfile
+/v12.yaml
+/crd.yml
+/stargate-executor/src/main/resources/logback.xml
+/stargate-admin-service/src/main/resources/logback.xml
+/stargate-observability-agent/src/main/resources/logback.xml
+/stargate-kubernetes-operator/src/main/resources/logback.xml
+/stargate-cli/src/main/resources/logback.xml
+/stargate-jvm-executor/src/main/resources/logback.xml
+/stargate-spark-facade/src/main/resources/logback.xml
+/stargate-python-executor/.build
+/stargate-python-executor/.dist
+/stargate-python-executor/venv
+/stargate-python-runner/venv
+/stargate-python-executor/stargate_python_executor.egg-info
+/stargate-python-executor/stargate-python-executor*.zip
+/examples/python-transformers/venv
+/examples/python-transformers/embedded/venv
+/examples/python-transformers/non-embedded/venv
+
+*/*.egg-info
+**/__pycache__/

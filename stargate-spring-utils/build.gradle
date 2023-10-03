@@ -1,0 +1,13 @@
+dependencies {
+    implementation project(":stargate-common-utils")
+    implementation "org.springframework:spring-context:${springVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-aop:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}"
+    implementation "io.projectreactor.netty:reactor-netty:${reactorNettyVersion}"
+    implementation "org.springframework:spring-beans:${springVersion}"
+    implementation "com.google.inject:guice:${guiceVersion}"
+    implementation "io.micrometer:micrometer-registry-prometheus:${micrometerVersion}"
+    compileOnly "io.grpc:grpc-api:${grpcVersion}"
+    compileOnly "com.apple.appeng.aluminum:aluminum-auth-support:${aluminumVersion}"
+    compileOnly "com.apple.ist.idms:a3tokenclient:${a3tokenclientVersion}"
+}

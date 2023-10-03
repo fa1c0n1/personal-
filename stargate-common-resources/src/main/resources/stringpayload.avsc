@@ -1,0 +1,14 @@
+{
+  "type": "record",
+  "name": "StringPayload",
+  "namespace": "com.apple.aml.stargate.#{ENV}.internal",
+  "fields": [
+    {
+      "name": "payload",
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  ]
+}

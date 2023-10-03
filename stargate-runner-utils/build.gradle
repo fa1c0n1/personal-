@@ -1,0 +1,47 @@
+apply plugin: 'java'
+
+dependencies {
+    compileOnly libraries.beamCompileOnly
+    implementation libraries.beamImplementation
+    compileOnly "org.apache.beam:beam-runners-spark-3:${beamVersion}"
+    implementation project(":stargate-services-spec")
+    implementation project(":stargate-common-utils")
+    implementation project(":stargate-pipeline-utils")
+    implementation project(":stargate-beam-utils")
+    implementation project(":stargate-beam-overrides")
+    compileOnly project(":stargate-hadoop-overrides")
+    compileOnly project(":stargate-connector-athena")
+    implementation "org.aspectj:aspectjweaver:${aspectjVersion}"
+    compileOnly "com.amazonaws:aws-java-sdk-s3:${awsVersion}"
+    compileOnly("org.apache.hadoop:hadoop-aws:${hadoopVersion}") {
+        exclude group: "com.sun.jersey"
+        exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
+        exclude group: "io.netty"
+        exclude group: "com.squareup.okhttp3"
+        exclude group: "com.amazonaws", module: "aws-java-sdk-bundle"
+    }
+    compileOnly("org.apache.flink:flink-runtime:${flinkVersion}") {
+        exclude group: "org.apache.flink", module: "flink-shaded-jackson"
+    }
+    compileOnly("org.apache.flink:flink-metrics-prometheus:${flinkVersion}") {
+        exclude group: "org.apache.flink", module: "flink-shaded-jackson"
+    }
+    compileOnly "org.apache.commons:commons-pool2:${commonsPoolVersion}"
+    implementation "io.prometheus:simpleclient_httpserver:${prometheusVersion}"
+    implementation "org.springframework:spring-context:${springVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-aop:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}"
+    implementation "io.projectreactor.netty:reactor-netty:${reactorNettyVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
+    implementation "org.springframework:spring-beans:${springVersion}"
+    implementation "io.prometheus:simpleclient_common:${prometheusVersion}"
+    implementation "io.prometheus:simpleclient_hotspot:${prometheusVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+    implementation ("com.apple.aml.stargate:stargate-rpc-spec:${stargateRpcSpec}") {
+        exclude group: "io.grpc", module: "grpc-netty-shaded"
+    }
+    implementation "com.apple.ist.idms:a3tokenclient:${a3tokenclientVersion}"
+    implementation project(":stargate-cache-utils")
+    implementation project(":stargate-cache-utils-ext")
+    implementation project(":stargate-spring-utils")
+}

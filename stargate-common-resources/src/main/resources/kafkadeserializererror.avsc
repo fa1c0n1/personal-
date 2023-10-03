@@ -1,0 +1,39 @@
+{
+  "type": "record",
+  "name": "KafkaDeserializerError",
+  "namespace": "com.apple.aml.stargate.#{ENV}.internal",
+  "fields": [
+    {
+      "name": "topic",
+      "type": "string"
+    },
+    {
+      "name": "data",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "name": "headers",
+      "type": [
+        "null",
+        {
+          "type": "map",
+          "values": "string"
+        }
+      ]
+    },
+    {
+      "name": "exception",
+      "type": "string"
+    },
+    {
+      "name": "errorMessage",
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  ]
+}

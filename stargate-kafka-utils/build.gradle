@@ -1,0 +1,35 @@
+dependencies {
+    implementation project(":stargate-common-utils")
+    implementation "org.cache2k:cache2k-core:${cache2kVersion}"
+    implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
+    implementation "commons-io:commons-io:${commonsIoVersion}"
+    implementation "com.google.guava:guava:${guavaVersion}"
+    implementation("com.apple.pie.queue:kafka-pie-client:${pieKafkaVersion}") {
+        exclude group: "com.apple.pie.queue", module: "kafka-crypto"
+        exclude group: "com.apple.pie.queue", module: "pie-envelope"
+        exclude group: "org.apache.kafka", module: "kafka-clients"
+        exclude group: "com.apple.pie.queue.kafka", module: "kafka-clients"
+    }
+    implementation("com.apple.pie.queue:kafka-crypto:${pieKafkaVersion}") {
+        exclude group: "org.apache.kafka", module: "kafka-clients"
+        exclude group: "com.apple.pie.queue.kafka", module: "kafka-clients"
+    }
+    implementation("com.apple.pie.queue:pie-envelope:${pieKafkaVersion}") {
+        exclude group: "org.apache.kafka", module: "kafka-clients"
+        exclude group: "com.apple.pie.queue.kafka", module: "kafka-clients"
+    }
+    implementation "org.apache.kafka:kafka-clients:${kafkaClientsVersion}"
+    implementation "com.apple.pie.queue.kafka:kafka-clients:${kafkaClientsPieVersion}"
+    implementation "com.apple.pie.queue:avro-serializer:${pieKafkaAvroVersion}"
+    implementation "com.apple.pie.queue:schema-ext:${pieKafkaSchemaextVersion}"
+    implementation "com.squareup.okhttp3:okhttp:${okhttpVersion}"
+//    implementation "org.rocksdb:rocksdbjni:${rocksdbjniVersion}"
+    implementation "io.github.speedb-io:speedbjni:${speedbjniVersion}"
+    implementation "de.ruedigermoeller:fst:${fstCoderVersion}"
+    implementation "org.apache.commons:commons-compress:${commonsCompressVersion}"
+    compileOnly "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation("com.apple.amp.external.schema-store:amp-schema-store-client:${schemaStoreVersion}") {
+        exclude group: "com.fasterxml.jackson.core", module: "jackson-databind"
+    }
+    compileOnly "io.prometheus:simpleclient:${prometheusVersion}"
+}

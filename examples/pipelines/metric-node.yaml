@@ -1,0 +1,43 @@
+apiVersion: "stargate.aml.apple.com/v1"
+kind: StargateDeployment
+metadata:
+  name: metric-node
+spec:
+  deploymentSize: small
+  logForwarder: default
+
+  definition:
+    schemas:
+      com.apple.aml.stargate.local.tick_details: |
+        key,string
+        value,long
+        source,string
+
+    nodes:
+      GenerateTick:
+        type: Ticker
+        config:
+          schemaId: com.apple.aml.stargate.local.tick_details
+          frequency: 1s
+          rate: 100
+          expression: |
+            {
+              "key" : "auto-${statics["java.util.UUID"].randomUUID()}",
+              "value" : "${record.epoc}",
+              "source" : "<#if record.epoc % 2 == 0>live<#else>val</#if>"
+            }
+
+      ExposeMetrics:
+        type: Metric
+        config:
+          expression: |
+            {
+              "metric_x" : {
+                  "type" : "counter",
+                  "labels": {"sourceType" : "${record.source}"},
+                  "value": 1
+              },
+              "metric_y_epoc": ${record.value}
+            }
+
+    dag: "GenerateTick->ExposeMetrics"

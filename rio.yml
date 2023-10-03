@@ -1,0 +1,378 @@
+schemaVersion: "2.0"
+timeout: 180
+machine:
+  baseImage: docker.apple.com/base-images/ubi9/java11-builder:latest
+  env:
+    MAVEN_TEST_OPTIONS: "-T4C"
+    RUNTIME_JDK_VERSION: 11
+    skipTests: true
+    SONAR_SCAN: false
+    SONAR_TOKEN: 264994d7aa748944441af91495e97ae29a7b0925
+
+pipelines:
+  - name: local-setup-stargate-java-library
+    branchName: local-setup-stargate
+    machine:
+      baseImage: docker.apple.com/base-images/ubi9/java11-builder:latest
+      env:
+        SG_VERSION: $(grep -e "version" gradle.properties | cut -d '=' -f 2)
+        RUNTIME_JDK_VERSION: 11
+    trigger:
+      gitPush: false
+    build:
+      template: buildozer:v4:publish
+    security:
+      scanReports:
+        dockerload:
+          continueOnFail: true
+        dockerfile:
+          continueOnFail: true
+    secrets:
+      names:
+        - jthebuilder_key
+    package:
+      release: true
+      libraries:
+        - publish:
+            - repo: m2:aml
+    finally:
+      pipelineChain:
+        - pipeline: local-setup-stargate-python-runner
+        - pipeline: local-setup-stargate-admin-app
+        - pipeline: local-setup-stargate-kubernetes-operator
+        - pipeline: local-setup-stargate-spark-facade
+      tag:
+        expression: '${SG_VERSION}-${GIT_COMMIT_SHORT}-${RIO_BUILD_NUMBER}'
+
+  - name: local-setup-stargate-admin-app
+    branchName: local-setup-stargate
+    machine:
+      baseImage: docker.apple.com/base-images/ubi9/java11-builder:latest
+    trigger:
+      gitPush: false
+    group: dockerfile-package
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - ./gradlew clean build -x test --parallel
+    secrets:
+      names:
+        - jthebuilder_key
+    package:
+      version: latest
+      dockerfile:
+        - dockerfilePath: stargate-admin-service/src/main/assembly/Dockerfile
+          name: stargate
+          perApplication: false
+          extraTags: [ "${GIT_COMMIT_SHORT}", "$(cat stargate-admin-service/src/main/resources/version.info)" ]
+          publish:
+            - repo: docker.apple.com/shuri/stargate
+    security:
+      scanReports:
+        dockerload:
+          continueOnFail: true
+        dockerfile:
+          continueOnFail: true
+
+  - name: local-setup-stargate-kubernetes-operator
+    branchName: local-setup-stargate
+    machine:
+      baseImage: docker.apple.com/base-images/ubi9/java11-builder:latest
+    trigger:
+      gitPush: false
+    group: dockerfile-package
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - ./gradlew clean build -x test --parallel
+    secrets:
+      names:
+        - jthebuilder_key
+    package:
+      version: latest
+      dockerfile:
+        - dockerfilePath: stargate-kubernetes-operator/src/main/assembly/Dockerfile
+          name: stargate-kubernetes-operator
+          perApplication: false
+          version: latest
+          extraTags: [ "${GIT_COMMIT_SHORT}", "$(cat stargate-kubernetes-operator/src/main/resources/version.info)" ]
+          publish:
+            - repo: docker.apple.com/aml/stargate-kubernetes-operator
+    security:
+      scanReports:
+        dockerload:
+          continueOnFail: true
+        dockerfile:
+          continueOnFail: true
+
+  - name: local-setup-stargate-spark-facade
+    branchName: local-setup-stargate
+    machine:
+      baseImage: docker.apple.com/base-images/ubi9/java11-builder:latest
+    trigger:
+      gitPush: false
+    group: dockerfile-package
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - ./gradlew clean build -x test --parallel
+    secrets:
+      names:
+        - jthebuilder_key
+    package:
+      version: latest
+      dockerfile:
+        - dockerfilePath: stargate-spark-facade/src/main/assembly/Dockerfile
+          name: stargate-spark-facade
+          perApplication: false
+          version: latest
+          extraTags: [ "${GIT_COMMIT_SHORT}", "$(cat stargate-spark-facade/src/main/resources/version.info)" ]
+          publish:
+            - repo: docker.apple.com/aml/stargate-spark-facade
+    security:
+      scanReports:
+        dockerload:
+          continueOnFail: true
+        dockerfile:
+          continueOnFail: true
+
+  - name: local-setup-stargate-executor
+    branchName: local-setup-stargate
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - export STARGATE_VERSION=$(grep -e "version" gradle.properties | cut -d '=' -f 2)
+        - wget https://artifacts.apple.com/aml-release-local/com/apple/aml/stargate/stargate-python-executor/$STARGATE_VERSION/stargate-python-executor-$STARGATE_VERSION.zip
+        - ./gradlew clean build -x test --parallel
+        - sh stargate-executor/src/main/assembly/rebuild.sh
+        - sh stargate-executor/src/main/assembly/docker-package.sh
+        - export STARGATE_VERSION="$(cat stargate-executor/src/main/resources/version.info)"
+        - cp stargate-executor/.build/stargate-executor.zip stargate-executor/.build/stargate-executor-$STARGATE_VERSION.zip
+        - ci stage-lib --label zip "stargate-executor/.build/stargate-executor-$STARGATE_VERSION.zip,com/apple/aml/stargate/stargate-executor/$STARGATE_VERSION/"
+    secrets:
+      names:
+        - jthebuilder_key
+    machine:
+      baseImage: docker.apple.com/base-images/ubi9/java11-builder:latest
+    trigger:
+      gitPush: false
+    package:
+      release: true
+      freeform:
+        - publish:
+            - repo: m2:aml
+      dockerfile:
+        - dockerfilePath: stargate-executor/src/main/assembly/Dockerfile
+          name: stargate-executor
+          perApplication: false
+          version: latest
+          extraTags: [ "${GIT_COMMIT_SHORT}", "$(cat stargate-executor/src/main/resources/version.info)" ]
+          publish:
+            - repo: docker.apple.com/aml/stargate-executor
+    security:
+      scanReports:
+        dockerload:
+          continueOnFail: true
+        dockerfile:
+          continueOnFail: true
+
+  - name: local-setup-stargate-python-runner
+    branchName: local-setup-stargate
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - export STARGATE_VERSION=$(grep -e "version" gradle.properties | cut -d '=' -f 2)
+        - cd stargate-python-runner
+        - python setup.py sdist bdist_wheel
+        - ci stage-lib "dist/stargate_python_runner-$STARGATE_VERSION-py3-none-any.whl,com/apple/aml/stargate/stargate-python-runner/$STARGATE_VERSION/"
+    secrets:
+      names:
+        - jthebuilder_key
+    machine:
+      baseImage: docker.apple.com/base-images/ubi8/python3.9-builder:latest
+    trigger:
+      gitPush: false
+    package:
+      release: true
+      freeform:
+        - publish:
+            - repo: pypi-apple
+    finally:
+      pipelineChain:
+        - pipeline: local-setup-stargate-wait-for-pypi-cache
+
+  - name: local-setup-stargate-wait-for-pypi-cache
+    branchName: local-setup-stargate
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - sleep 360
+    machine:
+      baseImage: docker.apple.com/base-images/ubi9/ubi:latest
+    trigger:
+      gitPush: false
+    finally:
+      pipelineChain:
+        - pipeline: local-setup-stargate-python-executor
+
+  - name: local-setup-stargate-python-executor
+    branchName: local-setup-stargate
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - export STARGATE_VERSION=$(grep -e "version" gradle.properties | cut -d '=' -f 2)
+        - sh stargate-python-executor/build.sh
+        - ci stage-lib --label zip "stargate-python-executor/.dist/stargate-python-executor-$STARGATE_VERSION.zip,com/apple/aml/stargate/stargate-python-executor/$STARGATE_VERSION/"
+    secrets:
+      names:
+        - jthebuilder_key
+    machine:
+      baseImage: docker.apple.com/base-images/ubi8/python3.9-builder:latest
+    trigger:
+      gitPush: false
+    package:
+      release: true
+      freeform:
+        - publish:
+            - repo: m2:aml
+    finally:
+      pipelineChain:
+        - pipeline: local-setup-stargate-executor
+
+  - name: checkers_scan
+    branchName: local-setup-stargate
+    trigger:
+      gitPush: false
+      timer: '@daily'
+    machine:
+      baseImage: docker.apple.com/aml-platform/checkers-reporter:latest
+    build:
+      template: freestyle:v4:build
+      steps:
+        - export CHECKERS_TOKEN_PATH=$BUILD_SECRETS_PATH/jthebuilder-checkers-token
+        - /app/execute_checkers_scan.py $GIT_URL $GIT_BRANCH
+    secrets:
+      names:
+        - jthebuilder-checkers-token
+
+  - name: base-images-aiml-flink-1.14
+    branchName: local-setup-stargate
+    machine:
+      baseImage: docker.apple.com/base-images/ubi9/java11-builder
+    trigger:
+      gitPush: false
+    group: dockerfile-package
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - echo "Yo!!"
+    package:
+      version: latest
+      dockerfile:
+        - dockerfilePath: base-images/aiml-flink-1.14/Dockerfile
+          perApplication: false
+          extraTags: [ "${GIT_COMMIT_SHORT}", "1.14" ]
+          publish:
+            - repo: docker.apple.com/shuri/aiml-flink-1.14
+
+  - name: base-images-aiml-flink-1.16
+    branchName: local-setup-stargate
+    machine:
+      baseImage: docker.apple.com/base-images/ubi9/java11-builder
+    trigger:
+      gitPush: false
+    group: dockerfile-package
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - echo "Yo!!"
+    package:
+      version: latest
+      dockerfile:
+        - dockerfilePath: base-images/aiml-flink-1.16/Dockerfile
+          perApplication: false
+          extraTags: [ "${GIT_COMMIT_SHORT}", "1.16" ]
+          publish:
+            - repo: docker.apple.com/shuri/aiml-flink-1.16
+
+  - name: base-images-aci-spark-3.4.0
+    branchName: local-setup-stargate
+    machine:
+      baseImage: docker.apple.com/base-images/ubi9/java11-builder
+    trigger:
+      gitPush: false
+    group: dockerfile-package
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - echo "Yo!!"
+    package:
+      version: latest
+      dockerfile:
+        - dockerfilePath: base-images/aci-spark-3.4.0/Dockerfile
+          perApplication: false
+          extraTags: [ "${GIT_COMMIT_SHORT}", "3.4.0.26", "3.4.0", "3.4" ]
+          publish:
+            - repo: docker.apple.com/shuri/aci-spark-3.4.0
+
+  - name: base-images-jdk-11
+    branchName: local-setup-stargate
+    machine:
+      baseImage: docker.apple.com/base-images/ubi9/java11-builder
+    trigger:
+      gitPush: false
+    group: dockerfile-package
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - echo "Yo!!"
+    package:
+      version: latest
+      dockerfile:
+        - dockerfilePath: base-images/jdk-debug-11/Dockerfile
+          perApplication: false
+          extraTags: [ "${GIT_COMMIT_SHORT}", "11.0", "11" ]
+          publish:
+            - repo: docker.apple.com/shuri/java11-builder
+
+  - name: examples-python-non-embedded
+    branchName: local-setup-stargate
+    machine:
+      baseImage: docker.apple.com/base-images/ubi9-minimal/python3.9-runtime:latest
+      env:
+        SG_VERSION: $(grep -e "version" gradle.properties | cut -d '=' -f 2)
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - echo "building python docker"
+    trigger:
+      gitPush: false
+    package:
+      version: latest
+      dockerfile:
+        - dockerfilePath: examples/python-transformers/non-embedded/Dockerfile
+          perApplication: false
+          extraTags: [ "${GIT_COMMIT_SHORT}", "${SG_VERSION}" ]
+          publish:
+            - repo: docker.apple.com/aml/stargate-python-non-embedded-example
+
+  - name: examples-python-embedded
+    branchName: local-setup-stargate
+    machine:
+      baseImage: docker.apple.com/base-images/ubi9-minimal/python3.9-runtime:latest
+      env:
+        SG_VERSION: $(grep -e "version" gradle.properties | cut -d '=' -f 2)
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - echo "building python docker"
+    trigger:
+      gitPush: false
+    package:
+      version: latest
+      dockerfile:
+        - dockerfilePath: examples/python-transformers/embedded/Dockerfile
+          perApplication: false
+          extraTags: [ "${GIT_COMMIT_SHORT}", "${SG_VERSION}" ]
+          publish:
+            - repo: docker.apple.com/aml/stargate-python-embedded-example

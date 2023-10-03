@@ -1,0 +1,45 @@
+apiVersion: "stargate.aml.apple.com/v1"
+kind: StargateDeployment
+metadata:
+  name: stargate-simple-example-v1
+spec:
+  runner: nativeFlink
+  deploymentSize: small
+  numberOfWorkers: 1
+  debugMode: silent
+  definition:
+    failOnError: false
+    logOnError: true
+    reader0: # this is the reader/consumer in this example it just generates a load every 3 seconds
+      connectId: sdp-kafka-config-uat
+      name: GenerateLoad
+      type: Ticker
+      config:
+        rate: 1
+        frequency: 3s
+        loadSize: 1
+
+    transformer0: # in this example the transformer is just generating some log output
+      name: CreateJson
+      type: Freemarker
+      schemaId: "com.apple.aml.dhari.prod.log4j.Event"
+      config:
+        expression: |
+          {
+            "timestamp" : ${record.epoc},
+            "message" : "some random message - ${statics["java.util.UUID"].randomUUID()} - ${record.value}-${record.counter!0}",
+            "level" : "INFO",
+            "logger" : "mylogger",
+            "host" : "${statics["com.apple.aml.stargate.common.utils.NetworkUtils"].hostName()}",
+            "cluster" : "my-cluster",
+            "namespace" : "my-namespace",
+            "pod" : "my-pod",
+            "container" : "my-container"
+          }
+
+    writer0: # the writer is simply logging the output to stdout 
+      name: Log
+      type: Log
+
+    dag:
+      - GenerateLoad->CreateJson->Log # just describing the pipeline flow

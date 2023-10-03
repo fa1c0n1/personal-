@@ -1,0 +1,31 @@
+dependencies {
+    compileOnly libraries.beamCompileOnly
+    implementation libraries.beamImplementation
+    implementation project(":stargate-common-utils")
+    implementation project(":stargate-pipeline-utils")
+    implementation project(":stargate-beam-utils")
+    implementation project(path: ':stargate-connector-iceberg-utils', configuration: 'shadow')
+    compileOnly libraries.iceberg
+    implementation "com.google.guava:guava:${guavaVersion}"
+    implementation "org.freemarker:freemarker:${freemarkerVersion}"
+    implementation "org.springframework:spring-expression:${springVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+    compileOnly "org.apache.spark:spark-avro_${scalaBaseVersion}:${sparkVersion}"
+    implementation "software.amazon.awssdk:url-connection-client:${awsV2Version}"
+    implementation "software.amazon.awssdk:glue:${awsV2Version}"
+    implementation "org.postgresql:postgresql:${postgresqlVersion}"
+    implementation("org.apache.beam:beam-sdks-java-io-amazon-web-services2:${beamVersion}") {
+        exclude group: "com.amazonaws"
+    }
+    implementation "software.amazon.awssdk:s3:${awsV2Version}"
+    implementation "io.prometheus:simpleclient_common:${prometheusVersion}"
+    implementation("com.apple.aml.stargate:stargate-rpc-spec:${stargateRpcSpec}") {
+        exclude group: "io.grpc", module: "grpc-netty-shaded"
+    }
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
+    implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
+    implementation "com.google.protobuf:protobuf-java-util:${protobufVersion}"
+    implementation "org.apache.avro:avro:${apacheAvroVersion}"
+}

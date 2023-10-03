@@ -1,0 +1,56 @@
+{
+  "type": "record",
+  "name": "TableDetails",
+  "namespace": "com.apple.aml.stargate.#{ENV}.internal",
+  "fields": [
+    {
+      "name": "tableName",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "name": "dbName",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "name": "schemaId",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "name": "partitionColumn",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "name": "partitionFormat",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "name": "sortColumn",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "name": "filePath",
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+name = pipeline-a
+appId = 12345
+author = "madhu.babu@apple.com"
+definitionType = NOTEBOOK
+environment = DEV
+config = {
+  timeout = 5s
+}
+reader = {
+  name = FetchLatestModelVersions
+  type = Jdbc
+  frequency = 1min
+  config = {
+    username = u001
+    password = p001
+    connectionString = "jdbc:mysql://host:3306/dbname?useSSL=true&useUnicode=true&serverTimezone=UTC"
+    //database = database
+    //driver = com.mysql.jdbc.Driver
+    //tableName = table_name
+    //viewName = view_name
+    query = "select * from table where value = ?"
+    queryParams = [
+      'AML'
+    ]
+  }
+}
+transformer = {
+  name = CreateNameVersionKV
+  type = SimpleKeyValue
+  config = {
+    key = name
+    value = mversion
+  }
+}
+writer = {
+  name = SaveToHdfs
+  type = Hdfs
+  config = {
+    defaultFsName = "hdfs://localhost:8020"
+    basePath = "hdfs://localhost:8020/hadoop-base/model_version"
+    fileFormat = Parquet
+    schema = com.apple.aml.shuri.dev.SimpleKeyValue
+    //hiveTableName = model_version
+  }
+}
+
+dag = "FetchLatestModelVersions->CreateNameVersionKV->SaveToHdfs"

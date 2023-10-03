@@ -1,0 +1,73 @@
+{
+  "type": "record",
+  "name": "HttpResponse",
+  "namespace": "com.apple.aml.stargate.#{ENV}.internal",
+  "fields": [
+    {
+      "name": "status",
+      "type": "boolean"
+    },
+    {
+      "name": "url",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "name": "code",
+      "type": [
+        "null",
+        "int"
+      ]
+    },
+    {
+      "name": "message",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "name": "body",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "name": "json",
+      "type": [
+        "null",
+        {
+          "type": "map",
+          "values": "string"
+        }
+      ]
+    },
+    {
+      "name": "headers",
+      "type": [
+        "null",
+        {
+          "type": "map",
+          "values": "string"
+        }
+      ]
+    },
+    {
+      "name": "duration",
+      "type": [
+        "null",
+        "double"
+      ]
+    },
+    {
+      "name": "payload",
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"timestamp":"2023-09-26T19:58:30.086Z","appid":"172847","appName":"stargate","level":"INFO","logger":"stargate.k8s.boot.StargateOperator","msg":"Applying latest version of crd!!"}

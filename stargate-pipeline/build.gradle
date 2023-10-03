@@ -1,0 +1,60 @@
+apply plugin: 'java'
+
+dependencies {
+    compileOnly "org.apache.flink:flink-avro:${flinkVersion}"
+    compileOnly libraries.beamCompileOnly
+    compileOnly "org.apache.flink:flink-connector-kafka:${flinkVersion}"
+    compileOnly "org.apache.flink:flink-avro:${flinkVersion}"
+    compileOnly "org.apache.beam:beam-runners-flink-1.16:${beamVersion}"
+    compileOnly "org.apache.flink:flink-streaming-java:${flinkVersion}"
+    compileOnly "org.apache.flink:flink-java:${flinkVersion}"
+    compileOnly "org.apache.flink:flink-table-api-java-bridge:${flinkVersion}"
+    compileOnly "org.apache.flink:flink-table-planner_2.12:${flinkVersion}"
+
+    implementation libraries.beamImplementation
+    implementation project(":stargate-common-utils")
+    implementation(project(":stargate-pipeline-utils")) {
+        exclude group: "com.sun.jersey"
+        exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
+        exclude group: "org.slf4j", module: "slf4j-log4j12"
+    }
+    implementation(project(":stargate-beam-utils")) {
+        exclude group: "com.sun.jersey"
+        exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
+        exclude group: "org.slf4j", module: "slf4j-log4j12"
+    }
+    implementation(project(":stargate-flink")) {
+        exclude group: "com.sun.jersey"
+        exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
+        exclude group: "org.slf4j", module: "slf4j-log4j12"
+    }
+    implementation(project(":stargate-beam-overrides")) {
+        exclude group: "com.sun.jersey"
+        exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
+        exclude group: "org.slf4j", module: "slf4j-log4j12"
+    }
+    implementation(project(":stargate-runner-utils")) {
+        exclude group: "org.apache.logging.log4j"
+        exclude group: "org.slf4j"
+        exclude group: "ch.qos.logback"
+        exclude group: "log4j"
+    }
+    implementation project(":stargate-connector-aci-kafka")
+    implementation project(":stargate-connector-aci-cassandra")
+    implementation project(":stargate-connector-iceberg")
+    implementation project(":stargate-connector-athena")
+    implementation project(":stargate-connector-stratos")
+    implementation project(":stargate-cache-utils")
+    implementation project(":stargate-cache-utils-ext")
+    implementation("com.apple.aml.nativeml:nativeml-spec:${nativemlSpecVersion}") {
+        exclude group: "com.apple.aml.stargate"
+    }
+    implementation "org.jgrapht:jgrapht-core:${jgraphtVersion}"
+    implementation "org.jgrapht:jgrapht-io:${jgraphtVersion}"
+    implementation "guru.nidi:graphviz-java-min-deps:${graphvizVersion}"
+    implementation "org.apache.avro:avro:${apacheAvroVersion}"
+    implementation "com.github.dexecutor:dexecutor-core:${dexecutorVersion}"
+    implementation "io.prometheus:simpleclient_hotspot:${prometheusVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+    //implementation "com.fasterxml.jackson.module:jackson-module-scala_${scalaBaseVersion}:${jacksonVersion}"
+}

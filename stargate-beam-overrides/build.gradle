@@ -1,0 +1,21 @@
+dependencies {
+    compileOnly libraries.beamCompileOnly
+    implementation libraries.beamImplementation
+    compileOnly "org.apache.beam:beam-runners-spark-3:${beamVersion}"
+    implementation project(":stargate-common-utils")
+    implementation project(":stargate-beam-utils")
+    implementation(project(":stargate-hadoop-overrides")) {
+        exclude group: "org.apache.logging.log4j"
+        exclude group: "org.slf4j"
+        exclude group: "ch.qos.logback"
+        exclude group: "log4j"
+        exclude group: "org.apache.hive"
+        exclude group: "org.apache.hive.hcatalog"
+    }
+    compileOnly "com.apple.ihubble.client:hubbleagent:${hubbleAgentVersion}"
+    implementation "io.prometheus:simpleclient:${prometheusVersion}"
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+    compileOnly "org.apache.flink:flink-core:${flinkVersion}"
+    compileOnly "org.apache.beam:beam-runners-flink-${flinkMajorVersion}:${beamVersion}"
+    compileOnly "org.apache.beam:beam-sdks-java-io-kafka:${beamVersion}"
+}

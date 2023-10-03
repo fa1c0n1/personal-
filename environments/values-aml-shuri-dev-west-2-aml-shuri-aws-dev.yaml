@@ -1,0 +1,221 @@
+namespace: aml-shuri-aws-dev
+cluster: "aml-shuri-dev-west-2"
+replicaCount: 1
+aws:
+  enabled: true
+image:
+  registry: docker.apple.com
+  repository: shuri
+  name: stargate
+  tag: latest
+  pullPolicy: Always
+
+grpc:
+  enabled: true
+  service:
+    port: 8082
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 11M
+    nginx.ingress.kubernetes.io/proxy-body-size: 11M
+    kubernetes.io/ingress.class: ingress-nginx-dhari
+  hosts:
+    - host: stargate-grpc-dev.apple.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: stargate
+                port:
+                  number: 8082
+            path: /
+            pathType: ImplementationSpecific
+    - host: stargate-grpc-dev.g.apple.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: stargate
+                port:
+                  number: 8082
+            path: /
+            pathType: ImplementationSpecific
+  tls:
+    - hosts:
+        - stargate-grpc-dev.apple.com
+        - stargate-grpc-dev.g.apple.com
+      secretName: stargate-platform-dev.apple.com.tls
+mongodb:
+  enabled: true
+  namespace: isdataservices
+  cluster: aml-shuri-test-west-2
+thrift:
+  enabled: false
+  service:
+    port: 8081
+
+imdg:
+  enabled: false
+
+app:
+  applicationProperties:
+    APP_MODE: DEV
+    PLATFORM_APPLICATION_ID: shuri
+    PLATFORM_PROCESS_NAME: aml-shuri-dev-west-2
+    PLATFORM_WORK_UNIT_ID: pod1
+    PLATFORM_JOB_ID: hostname
+    PLATFORM_SHORT_INSTANCE_ID: stargate-dev
+    HUBBLE_TCP_URL: "tcp://hubble-tcp-publish-corp-uat.apple.com:9898"
+    READINESS_ENABLE_CHECK: true
+    LIVENESS_ENABLE_CHECK: true
+    GSLB_ENABLE_CHECK: true
+    APP_IDMS_VALIDATE_URL: "http://localhost:8090"
+    APP_DB_INSTANCES: "mr51q01nt-maasdlmdb002.dbs.ise.apple.com:10905,mr51q01nt-maasdlmdb003.dbs.ise.apple.com:10905,mr51q01nt-maasdlmdb004.dbs.ise.apple.com:10905"
+    APP_DB_NAME: "stargate-dev"
+    APP_DB_USER: "C=US,ST=California,O=Apple Inc.,OU=management:idms.group.1462913,CN=stargate-dev.shuridevrw.apple.com"
+    APP_DB_KEYSTORE_ALIAS: "stargate-dev.shuridevrw.apple.com"
+    APP_DB_KEYSTORE_PATH: "/app/keystore/stargate.jks"
+    APP_GITHUB_CLIENT_ID: athenaml-sa
+    APP_ACS_SPARK_PROJECT_ID: 683gxhxpqgju
+    APP_ACS_SPARK_SOURCE_ID: zg9t8djgnluy
+    APP_ACS_SPARK_NAMESPACE_ID: 8ax3c2oi2sbx
+    APP_GRPC_SERVICE: "stargate-aws-grpc-dev.g.apple.com:443"
+    APP_K8S_SPLUNK_FORWARDER_VERSION: "8.2.5"
+  environment: DEV
+  secretName: "aml-stargate-secret-dev"
+
+
+
+initContainers:
+  vault:
+    enabled: false
+    secretName: "aml-stargate-vault-secret-dev"
+    kubernetesServicePort: 6442
+  certd:
+    enabled: false
+  whisper:
+    enabled: false
+    env: dev
+  appconfig:
+    enabled: true
+    secret: appconfig-test
+    env:
+      - name: spring.cloud.config.name
+        value: M00637
+      - name: spring.cloud.config.label
+        value: DEV_WEST2
+      - name: spring.cloud.config.profile
+        value: SHURI_AWS
+      - name: appconfig.init-container.property.download.enabled
+        value: "true"
+      - name: appconfig.init-container.property.download.path
+        value: "/app-config"
+      - name: appconfig.init-container.property.download.fileName
+        value: "app.secrets"
+      - name: appconfig.init-container.resource.enabled
+        value: "true"
+      - name: appconfig.init-container.resource.defaultPath
+        value: "/app-config"
+      - name: appconfig.init-container.resource.fileNames
+        value: "keystore.jks,stargate.jks"
+idms:
+  environment: "DEV"
+
+splunk:
+  enabled: true
+  index: "stargate_dev"
+  clusterName: "iag_prod"
+  resources:
+    requests:
+      cpu: 10m
+      memory: 50Mi
+
+ingress:
+  enabled: true
+  awsAnnotations:
+    kubernetes.io/ingress.class: ingress-nginx-dhari
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 11M
+    nginx.ingress.kubernetes.io/proxy-body-size: 11M
+  rules:
+    - host: stargate-platform-dev.apple.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: stargate
+                port:
+                  number: 8080
+            path: /
+            pathType: ImplementationSpecific
+    - host: stargate-platform-dev.g.apple.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: stargate
+                port:
+                  number: 8080
+            path: /
+            pathType: ImplementationSpecific
+  tls:
+    - hosts:
+        - stargate-platform-dev.apple.com
+        - stargate-platform-dev.g.apple.com
+      secretName: stargate-platform-dev.apple.com.tls
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 1
+
+shuria3:
+  enabled: false
+  app:
+    enabled: false
+    javaVMArgs: "-DI3_ENV=PROD-HTTPS"
+    secretName: "aml-shuri-a3-secret-dev"
+  readinessProbe:
+    enabled: true
+    periodSeconds: 60
+    successThreshold: 1
+    timeoutSeconds: 1
+  livenessProbe:
+    enabled: true
+    periodSeconds: 60
+    successThreshold: 1
+    timeoutSeconds: 1
+
+readinessProbe:
+  enabled: true
+  #  initialDelaySeconds: 60
+  failureThreshold: 3
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+  httpGet:
+    path: /readiness
+    port: 8080
+livenessProbe:
+  enabled: true
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+  failureThreshold: 3
+  httpGet:
+    path: /health
+
+# revisionHistoryLimit: 2
+deploymentStrategy: { }
+#  type: RollingUpdate
+#  rollingUpdate:
+#    maxSurge: 1
+#    maxUnavailable: 0
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+  maxUnavailable: 1
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 50Mi

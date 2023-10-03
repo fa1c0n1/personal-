@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="${APP_LOG_CONFIG_SCAN_FREQUENCY:-30000}">
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.apple.aml.stargate.common.logging.JsonLogLayout"/>
+        </encoder>
+    </appender>
+    <appender name="STDFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <immediateFlush>true</immediateFlush>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.apple.aml.stargate.common.logging.JsonLogLayout"/>
+        </encoder>
+        <file>${APP_HOME}/logs/${APP_LOG_FILE_NAME:-stargate-pipeline}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${APP_HOME}/logs/${APP_LOG_FILE_NAME:-stargate-pipeline}.%d{yyyyMMdd}.%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+    <appender name="ASYNCFILE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>8192</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="STDFILE"/>
+    </appender>
+    <appender name="ASYNCOUT" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>8192</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="STDOUT"/>
+    </appender>
+    <appender name="SPLUNK_FORWARDER_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <immediateFlush>true</immediateFlush>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+        <file>${APP_HOME}/logs/${APP_SPLUNK_FORWARDER_FILE_NAME:-stargate-splunk-forwarder}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${APP_HOME}/logs/${APP_SPLUNK_FORWARDER_FILE_NAME:-stargate-splunk-forwarder}.%d{yyyyMMdd}.%i.log</fileNamePattern>
+            <maxFileSize>${APP_SPLUNK_FORWARDER_MAX_FILE_SIZE:-500MB}</maxFileSize>
+            <maxHistory>${APP_SPLUNK_FORWARDER_MAX_FILE_HISTORY:-10}</maxHistory>
+            <totalSizeCap>${APP_SPLUNK_FORWARDER_TOTAL_SIZE_CAP:-5GB}</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+    <appender name="ASYNC_SPLUNK_FORWARDER_APPENDER" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>8192</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="SPLUNK_FORWARDER_APPENDER"/>
+    </appender>
+    <logger name="ch.qos.logback.classic.model.processor.LoggerModelHandler" level="WARN"/>
+    <logger name="org.apache.kafka.clients.producer.ProducerConfig" level="ERROR"/>
+    <logger name="org.apache.kafka.clients.consumer.ConsumerConfig" level="ERROR"/>
+    <logger name="com.apple.aml.stargate" level="DEBUG"/>
+    <logger name="com.apple.aml.dhari" level="DEBUG"/>
+    <logger name="stargate" level="DEBUG"/>
+    <logger name="dhari" level="DEBUG"/>
+    <logger name="nativeml" level="DEBUG"/>
+    <logger name="stargate.common.web.clients" level="INFO"/>
+    <logger name="org.apache.hadoop.hive.conf.HiveConf" level="ERROR"/>
+    <logger name="org.apache.flink.metrics.MetricGroup" level="ERROR"/>
+    <logger name="org.apache.beam.sdk.options.PipelineOptionsFactory" level="ERROR"/>
+    <logger name="org.apache.beam.sdk.util.MutationDetectors" level="ERROR"/>
+    <logger name="org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline" level="ERROR"/>
+    <logger name="com.amazonaws.auth.profile.internal.BasicProfileConfigLoader" level="ERROR"/>
+    <logger name="org.apache.spark.SparkConf" level="ERROR"/>
+    <logger name="org.apache.flink.runtime.taskmanager.Task" level="WARN"/>
+    <logger name="org.apache.flink.runtime.taskexecutor.TaskExecutor" level="WARN"/>
+    <logger name="org.apache.flink.streaming.runtime.tasks.StreamTask" level="WARN"/>
+    <logger name="org.apache.flink.runtime.executiongraph.ExecutionGraph" level="WARN"/>
+    <logger name="org.apache.flink.runtime.checkpoint.CheckpointCoordinator" level="WARN"/>
+    <logger name="org.apache.flink.runtime.taskexecutor.slot.TaskSlotTableImpl" level="WARN"/>
+    <logger name="org.apache.flink.runtime.state.heap" level="WARN"/>
+    <logger name="org.apache.beam.sdk.runners.TransformHierarchy" level="WARN"/>
+    <logger name="org.apache.beam.sdk.util.WindowTracing" level="WARN"/>
+    <logger name="org.apache.beam.runners.flink.translation.wrappers.streaming.io.UnboundedSourceWrapper" level="WARN"/>
+    <logger name="org.apache.beam.sdk.coders.SerializableCoder" level="ERROR"/>
+    <logger name="org.apache.hadoop.io.compress.CodecPool" level="WARN"/>
+    <logger name="org.apache.kafka.clients.consumer.internals.SubscriptionState" level="WARN"/>
+    <logger name="org.apache.kafka.clients.ConfigurationInterceptorConfig" level="WARN"/>
+    <logger name="org.apache.kafka.clients.Metadata" level="WARN"/>
+    <logger name="org.apache.kafka.common.security" level="WARN"/>
+    <logger name="com.apple.pie.queue" level="WARN"/>
+    <logger name="com.apple.ihubble.client" level="WARN"/>
+    <logger name="org.apache.beam.sdk.io.aws.s3.DefaultS3ClientBuilderFactory" level="WARN"/>
+    <logger name="org.apache.kafka.common.utils.AppInfoParser" level="WARN"/>
+    <logger name="org.apache.hadoop.hive" level="INFO"/>
+    <logger name="org.apache.hadoop" level="INFO"/>
+    <logger name="hive" level="INFO"/>
+    <logger name="org.apache.ignite.internal" level="INFO"/>
+    <logger name="org.apache.ignite.internal.IgniteKernal" level="INFO"/>
+    <logger name="org.apache.ignite" level="INFO"/>
+    <logger name="com.apple" level="WARN"/>
+    <logger name="org.apache" level="WARN"/>
+    <logger name="org.mongodb" level="WARN"/>
+    <logger name="com.amazonaws" level="WARN"/>
+    <logger name="relocated.com.apple" level="WARN"/>
+    <logger name="appengAluminumMetricsLogger" level="OFF"/>
+    <logger name="DSLog" level="WARN"/>
+    <logger name="org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler" level="OFF"/>
+    <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="WARN"/>
+    <logger name="org.apache.ignite.internal.processors.query.h2.sql.GridSqlQueryParser" level="ERROR"/>
+    <logger name="org.apache.ignite.internal.processors.query.h2.QueryParser" level="ERROR"/>
+    <logger name="io.prometheus.jmx" level="OFF"/>
+    <logger name="stargate.common.utils.KafkaPrometheusMetricSyncer" level="WARN"/>
+    <logger name="stargate.beam.sdk.metrics.PrometheusMetricsContainer" level="INFO"/>
+    <logger name="stargate.common.utils.PrometheusUtils" level="INFO"/>
+    <logger name="com.apple.ihubble.client.stats.HubbleAgent" level="ERROR"/>
+    <logger name="org.apache.flink.runtime.util.HadoopUtils" level="ERROR"/>
+    <logger name="org.springframework.boot.logging.logback.LogbackLoggingSystem" level="ERROR"/>
+    <logger name="org.apache.hadoop.util.NativeCodeLoader" level="ERROR"/>
+    <logger name="com.apple.pie.crypto.client.report.CryptoMetrics" level="ERROR"/>
+    <logger name="com.apple.aml.stargate.runners.flink.utils.FlinkMetricReporter" level="WARN"/>
+    <logger name="com.apple.appeng.aluminum.health.HealthCoordinator" level="ERROR"/>
+    <logger name="net.snowflake" level="INFO"/>
+    <logger name="com.apple.ai" level="DEBUG"/>
+    <logger name="stargate.runtime.node" level="DEBUG"/>
+    <include optional="true" file="${APP_LOG_OVERRIDES_FILE_PATH:-./log-overrides.xml}"/>
+    <logger name="stargate.splunk.forwarder" level="TRACE" additivity="false">
+        <appender-ref ref="ASYNC_SPLUNK_FORWARDER_APPENDER"/>
+    </logger>
+    <root level="WARN">
+        <appender-ref ref="ASYNCOUT"/>
+        <appender-ref ref="ASYNCFILE"/>
+    </root>
+</configuration>

@@ -1,0 +1,28 @@
+dependencies {
+    compileOnly libraries.beamCompileOnly
+    implementation libraries.beamImplementation
+    implementation project(":stargate-services-spec")
+    implementation project(":stargate-common-utils")
+    implementation project(":stargate-pipeline-utils")
+    implementation project(":stargate-beam-utils")
+    implementation project(":stargate-cache-utils")
+    implementation project(":stargate-cache-utils-ext")
+    implementation "org.freemarker:freemarker:${freemarkerVersion}"
+    implementation("com.apple.athena:athena-attributes:${athenaVersion}") {
+        exclude group: "com.fasterxml.jackson.core"
+        exclude group: "com.fasterxml.jackson.module"
+        exclude group: "ch.qos.logback"
+        exclude group: "org.slf4j"
+        exclude group: "javax.servlet"
+        exclude group: "org.apache.thrift"
+        exclude group: "org.eclipse.jetty"
+        exclude group: "org.apache.spark"
+        exclude group: "org.apache.commons"
+        exclude group: "org.apache.cassandra.deps", module: "avro"
+        exclude group: "net.jpountz.lz4", module: "lz4"
+    }
+    implementation "com.apple.jvm.commons:commons-util:${jvmCommonsVersion}"
+    implementation "commons-io:commons-io:${commonsIoVersion}"
+    implementation "org.apache.curator:curator-client:${curatorVersion}"
+    implementation "io.prometheus:simpleclient_common:${prometheusVersion}"
+}

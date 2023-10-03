@@ -1,0 +1,22 @@
+{
+  "type": "record",
+  "name": "Sequencer",
+  "namespace": "com.apple.aml.stargate.#{ENV}.internal",
+  "fields": [
+    {
+      "name": "value",
+      "type": "long"
+    },
+    {
+      "name": "epoc",
+      "type": "long"
+    },
+    {
+      "name": "loadNo",
+      "type": [
+        "null",
+        "long"
+      ]
+    }
+  ]
+}
